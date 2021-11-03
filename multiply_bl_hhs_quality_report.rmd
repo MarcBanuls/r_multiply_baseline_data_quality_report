@@ -121,13 +121,86 @@ number_of_records = numberOfRecords(hhs_data)
 knitr::include_graphics("github_icon.png")
 ```
 
+[`r language$head.github`](https://github.com/maxramirez84/r_tiptop_baseline_hhs_data_quality_report)
+
+## `r language$progress.title`
+
+`r sprintf(language$progress.records, number_of_records)` 
+(`r sprintf(language$progress.last, last_record_date)`).
+
+`r language$progress.partner` [`r partner.name`](http://manhica.org).
+
+```{r}
+# Issue to be solved
+#consented   = numberOfparticipantsWhoConsented(hhs_data)
+#recruitment = recruitmentRate(hhs_data, sample_size)
+```
+
+```{r remove_lat_lon, echo=FALSE}
+# TO BE REMOVED
+#CHECK LAT LON AS NA
+hhs_data$latitude <- NA
+hhs_data$longitude <- NA
+```
+
+### `r language$progress.subtitle1`
+```{r}
+#r recruitment and r consented not used so we remove this div class for the moment:
+#<div class="col-left text-center">
+#  `r language$progress.women` @ `r study_area_label`
+#
+#
+#  <span class="big-number">`r recruitment`%</span>
+#
+#  `r consented` / `r sample_size`
+#</div>
+```
 
 
+<div class="col-right text-center">
+</div>
 
+<p style="page-break-before: always">
 
+```{r progress_area_1, echo=FALSE}
+#progressOfArea(hhs_data, study_area_column, study_area_label, interval = 10, required_visits_mean = 60, lang = language)
+```
 
+<p style="page-break-before: always">
 
+## `r paste(language$profile.title)`
 
+### `r sprintf(language$profile.subtitle1, study_area_label)`
+
+```{r trial_profile_area_1, echo=FALSE, results="asis"}
+#trialProfileOfArea(hhs_data, study_area_column)
+```
+
+<p style="page-break-before: always">
+
+## `r language$dups.title`
+
+### `r sprintf(language$dups.subtitle1, study_area_label)`
+
+```{r duplicates_summary_area_1, echo=FALSE, results="asis"}
+duplicatesSummary(hhs_data, study_area_column)
+```
+
+### `r language$dups.subtitle2`
+`r language$dups.desc1`
+
+```{r duplicated_households, echo=FALSE}
+printDuplicatedHouseholds(hhs_data, study_area_column, study_area_label)
+```
+
+### `r language$dups.subtitle3`
+`r language$dups.desc2`
+
+```{r duplicated_records, echo=FALSE}
+printDuplicatedRecords(hhs_data, study_area_column, study_area_label)
+```
+
+<p style="page-break-before: always">
 
 
 

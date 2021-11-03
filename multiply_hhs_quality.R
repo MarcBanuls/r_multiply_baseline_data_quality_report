@@ -150,6 +150,31 @@ pivot <- function(indexes, index_column, value_column, df) {
   
   return(l)
 }
+
+# Compute number of participants who consented the interview
+numberOfparticipantsWhoConsented = function(hhs_data) {
+  #browser()
+  consented = table(hhs_data$children_2_years, hhs_data$children_no_icaria)
+  
+  if(length(consented) > 0)
+    consented = consented[, "1"]
+  else
+    consented = 0 
+  
+  return(consented)
+}
+
+# Compute recruitment rate
+recruitmentRate = function(hhs_data, sample_size) {
+  consented = numberOfparticipantsWhoConsented(hhs_data)
+  
+  if(is.na(consented)) 
+    recruitment = 0 
+  else 
+    recruitment = floor((consented / sample_size) * 100)
+  
+  return(recruitment)
+}
 #-----
 #skip indicators to focus in duplicates
 
@@ -366,11 +391,260 @@ printDuplicatedRecords = function(hhs_data, study_area_column, study_area_label)
   }
 }
 
+
 # Duplicated Households
+duplicatedHouseholds = function(hhs_data, study_area_column, study_area_label) {
+  #browser()
+  column = paste0("cluster_", study_area_column)
+  
+  duplicated_records = hhs_data[duplicated(hhs_data[2:ncol(hhs_data)]) | 
+                                  duplicated(hhs_data[2:ncol(hhs_data)], fromLast = T), ]
+  
+  key_columns = c(column, "household")
+  id_columns = hhs_data[key_columns]
+  duplicated_hh = hhs_data[duplicated(id_columns) | duplicated(id_columns, fromLast = T), ]
+  rerecorded_hh = duplicated_hh[!(duplicated_hh$record_id %in% duplicated_records$record_id), ]
+  
+  # Check if there is reused household IDs which are also duplicates
+  rerecorded_and_duplicated = intersect(rerecorded_hh[key_columns], 
+                                        duplicated_records[key_columns])
+  if(nrow(rerecorded_and_duplicated) > 0) {
+    for(i in 1:nrow(rerecorded_and_duplicated)) {
+      if(!is.na(rerecorded_and_duplicated[i, column]))
+        rerecorded_hh = rbind(rerecorded_hh, duplicated_records[
+          duplicated_records[column] == 
+            rerecorded_and_duplicated[i, column] &
+            duplicated_records$household == rerecorded_and_duplicated$household[i], ][1,])
+    }
+  }
+  
+  # Remove duplicates in which the cluster column is NA
+  duplicated_hh = duplicated_hh[which(!is.na(duplicated_hh[column])), ]
+  rerecorded_hh = rerecorded_hh[which(!is.na(rerecorded_hh[column])), ]
+  
+  if(nrow(rerecorded_hh) == 0)
+    return(NULL)
+  
+  rerecorded_hh$cluster[!is.na(rerecorded_hh[column])] = 
+    rerecorded_hh[!is.na(rerecorded_hh[column]), column]
+  
+  columns = c("record_id", "district", "cluster", "household", "latitude", "longitude", 
+              "hh_initials", "hh_sex", "hh_available", "consent", "child_birth", 
+              "interviewer_id", "interview_date", "interviewer_id_rdt", "interview_date_rdt")
+  rerecorded_hh_summary = rerecorded_hh[
+    order(rerecorded_hh$district, rerecorded_hh$cluster, rerecorded_hh$household, 
+          rerecorded_hh$interview_date), columns]
+  
+  # Remove deleted records
+  rerecorded_hh_summary = rerecorded_hh_summary[!is.na(rerecorded_hh_summary$district), ]
+  
+  #browser()
+  # Disambiguate records
+  if(nrow(rerecorded_hh_summary) > 0) {
+    rerecorded_hh_summary$duplicated = NA
+    current_district = rerecorded_hh_summary$district[1]
+    current_cluster = rerecorded_hh_summary$cluster[1]
+    current_household = rerecorded_hh_summary$household[1]
+    records_in_conflict = c(1)
+    for(i in 2:nrow(rerecorded_hh_summary)) {
+      if(rerecorded_hh_summary$district[i] == current_district & 
+         rerecorded_hh_summary$cluster[i] == current_cluster &
+         ((is.na(rerecorded_hh_summary$household[i]) & is.na(current_household)) | 
+          (!is.na(rerecorded_hh_summary$household[i]) & 
+           rerecorded_hh_summary$household[i] == current_household))) {
+        records_in_conflict = c(records_in_conflict, i)
+      } else {
+        for(j in 1:(length(records_in_conflict) - 1)) {
+          for(k in (j+1):length(records_in_conflict)) {
+            #browser()
+            result = sameInterview(rerecorded_hh_summary[records_in_conflict[j], ], 
+                                   rerecorded_hh_summary[records_in_conflict[k], ])
+            
+            if(is.na(rerecorded_hh_summary$duplicated[records_in_conflict[j]]) | 
+               rerecorded_hh_summary$duplicated[records_in_conflict[j]] != T)
+              rerecorded_hh_summary$duplicated[records_in_conflict[j]] = result
+            if(is.na(rerecorded_hh_summary$duplicated[records_in_conflict[k]]) | 
+               rerecorded_hh_summary$duplicated[records_in_conflict[k]] != T)
+              rerecorded_hh_summary$duplicated[records_in_conflict[k]] = result
+          }
+        }
+        
+        current_district = rerecorded_hh_summary$district[i]
+        current_cluster = rerecorded_hh_summary$cluster[i]
+        current_household = rerecorded_hh_summary$household[i]
+        records_in_conflict = c(i)
+      }
+    }
+    
+    #browser()
+    for(j in 1:(length(records_in_conflict) - 1)) {
+      for(k in (j+1):length(records_in_conflict)) {
+        #browser()
+        result = sameInterview(rerecorded_hh_summary[records_in_conflict[j], ], 
+                               rerecorded_hh_summary[records_in_conflict[k], ])
+        
+        if(is.na(rerecorded_hh_summary$duplicated[records_in_conflict[j]]) | 
+           rerecorded_hh_summary$duplicated[records_in_conflict[j]] != T)
+          rerecorded_hh_summary$duplicated[records_in_conflict[j]] = result
+        if(is.na(rerecorded_hh_summary$duplicated[records_in_conflict[k]]) | 
+           rerecorded_hh_summary$duplicated[records_in_conflict[k]] != T)
+          rerecorded_hh_summary$duplicated[records_in_conflict[k]] = result
+      }
+    }
+  }
+  
+  rerecorded_hh_summary$consent[is.na(rerecorded_hh_summary$consent)] = language$not.asked
+  rerecorded_hh_summary$consent[rerecorded_hh_summary$consent == 0]   = language$no
+  rerecorded_hh_summary$consent[rerecorded_hh_summary$consent == 1]   = language$yes
+  
+  rerecorded_hh_summary$district = study_area_label
+  
+  rerecorded_hh_summary$hh_sex[rerecorded_hh_summary$hh_sex == 0] = language$rerecorded.sex1
+  rerecorded_hh_summary$hh_sex[rerecorded_hh_summary$hh_sex == 1] = language$rerecorded.sex2
+  
+  rerecorded_hh_summary$hh_available[rerecorded_hh_summary$hh_available == 0] = language$no
+  rerecorded_hh_summary$hh_available[rerecorded_hh_summary$hh_available == 1] = language$yes
+  rerecorded_hh_summary$hh_available[rerecorded_hh_summary$hh_available == 2] = language$rerecorded.empty
+  
+  rerecorded_hh_summary$duplicated[rerecorded_hh_summary$duplicated == F] = language$rerecorded.dup1
+  rerecorded_hh_summary$duplicated[rerecorded_hh_summary$duplicated == T] = language$rerecorded.dup2
+  
+  return(rerecorded_hh_summary)
+}
 
+#Print Duplicated Households
+printDuplicatedHouseholds = function(hhs_data, study_area_column, study_area_label) {
+  #browser()
+  rerecorded_hh_summary = duplicatedHouseholds(hhs_data, study_area_column, study_area_label)
+  
+  if(!is.null(rerecorded_hh_summary)) {
+    if(nrow(rerecorded_hh_summary) > 0) {
+      colnames(rerecorded_hh_summary) = c(language$rerecorded.dups.h1, language$rerecorded.dups.h2,
+                                          language$rerecorded.dups.h3, language$rerecorded.dups.h4,
+                                          language$rerecorded.dups.h5, language$rerecorded.dups.h6,
+                                          language$rerecorded.dups.h7, language$rerecorded.dups.h8,
+                                          language$rerecorded.dups.h9, language$rerecorded.dups.h10,
+                                          language$rerecorded.dups.h11, language$rerecorded.dups.h12,
+                                          language$rerecorded.dups.h13, language$rerecorded.dups.h14,
+                                          language$rerecorded.dups.h15)
+      
+      kable(rerecorded_hh_summary, "html", row.names = F, escape = F) %>%
+        kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
+                      font_size = 12) %>%
+        row_spec(0, bold = T, color = "white", background = "#494949") %>%
+        scroll_box(height = "250px")
+    } else {
+      print(language$dups.no.hh)
+    }
+  } else {
+    print(language$dups.no.hh)
+  }
+}
 
-
-
+#Duplicates Summary
+duplicatesSummary = function(hhs_data, study_area_column) {
+  #browser()
+  font_size = 10
+  maximum_number_of_columns = 29
+  column = paste0("cluster_", study_area_column)
+  
+  non_interviewed_visits_number_area = 
+    table(hhs_data[is.na(hhs_data$consent) | hhs_data$consent != 1, column])
+  interviewed_number_area = 
+    table(hhs_data[hhs_data$consent == 1, column])
+  
+  if(length(non_interviewed_visits_number_area) > 0 | length(interviewed_number_area) > 0) {
+    duplicated_records = hhs_data[duplicated(hhs_data[2:ncol(hhs_data)]), ]
+    
+    non_interviewed_duplicated_records_area = 
+      table(duplicated_records[is.na(duplicated_records$consent) | duplicated_records$consent != 1, 
+                               column])
+    interviewed_duplicated_records_area = 
+      table(duplicated_records[duplicated_records$consent == 1, column])
+    
+    id_columns = hhs_data[c(column, "household")]
+    duplicated_hh = hhs_data[duplicated(id_columns) | duplicated(id_columns, fromLast = T), ]
+    duplicated_records_from_last = hhs_data[duplicated(hhs_data[2:ncol(hhs_data)]) | 
+                                              duplicated(hhs_data[2:ncol(hhs_data)], fromLast = T), ]
+    rerecorded_hh = duplicated_hh[!(duplicated_hh$record_id %in% 
+                                      duplicated_records_from_last$record_id), ]
+    
+    rerecorded_hh_area = table(rerecorded_hh[column])
+    
+    rerecorded_hh_interviewed = rerecorded_hh[rerecorded_hh$consent == 1, ]
+    rerecorded_hh_interviewed_area = table(rerecorded_hh_interviewed[column])
+    
+    non_interviewed = union(non_interviewed_visits_number_area, 
+                            non_interviewed_duplicated_records_area)
+    if(ncol(non_interviewed) > 0)
+      non_interviewed_totals = non_interviewed[1,] - non_interviewed[2,]
+    else
+      non_interviewed_totals = non_interviewed_visits_number_area # empty table
+    
+    interviewed = union(interviewed_number_area, interviewed_duplicated_records_area)
+    if(ncol(interviewed) > 0)
+      interviewed_totals = interviewed[1,] - interviewed[2,]
+    else
+      interviewed_totals = interviewed_number_area # empty table
+    #browser()
+    duplicates_summary = union(
+      non_interviewed_visits_number_area,
+      interviewed_number_area,
+      non_interviewed_duplicated_records_area,
+      interviewed_duplicated_records_area,
+      non_interviewed_totals,
+      interviewed_totals,
+      rerecorded_hh_area,
+      rerecorded_hh_interviewed_area
+    )
+    row.names(duplicates_summary) = c(
+      language$dups.tab.row2,
+      language$dups.tab.row3,
+      language$dups.tab.row4,
+      language$dups.tab.row5,
+      language$dups.tab.row6,
+      language$dups.tab.row7,
+      language$dups.tab.row8,
+      language$dups.tab.row9
+    )
+    colnames(duplicates_summary) = paste0("C", colnames(duplicates_summary))
+    
+    duplicates_summary_reduced = duplicates_summary[, duplicates_summary[3,] != 0 | 
+                                                      duplicates_summary[4,] != 0 | 
+                                                      duplicates_summary[7,] != 0, drop = F]
+    
+    if(ncol(duplicates_summary_reduced) > 0) {
+      if(ncol(duplicates_summary_reduced) > maximum_number_of_columns) {
+        number_of_columns = ncol(duplicates_summary_reduced)
+        middle = as.integer(number_of_columns / 2)
+        
+        print(kable(duplicates_summary_reduced[,1:(middle + 2)], "html", escape = F) %>%
+                kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
+                              font_size = font_size) %>%
+                row_spec(0, bold = T, color = "white", background = "#494949") %>%
+                row_spec(c(2, 6), bold = T)
+        )
+        print(kable(duplicates_summary_reduced[,(middle + 3):number_of_columns], "html", escape = F) %>%
+                kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
+                              font_size = font_size) %>%
+                row_spec(0, bold = T, color = "white", background = "#494949") %>%
+                row_spec(c(2, 6), bold = T)
+        )
+      } else {
+        print(kable(duplicates_summary_reduced, "html", escape = F) %>%
+                kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
+                              font_size = font_size) %>%
+                row_spec(0, bold = T, color = "white", background = "#494949") %>%
+                row_spec(c(2, 6), bold = T)
+        )
+      }
+    } else {
+      print(language$dups.no.dups) 
+    }
+  } else {
+    print(language$dups.no.data)
+  }
+}
 
 
 
