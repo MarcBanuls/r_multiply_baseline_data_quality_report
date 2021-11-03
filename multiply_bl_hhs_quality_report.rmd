@@ -1,6 +1,6 @@
 
 ```{r parameters, include=FALSE}
-source("tiptop_hhs_quality.R")
+source("multiply_hhs_quality.R")
 source("lang.R")
 source("tokens.R")
 
@@ -13,7 +13,7 @@ language <- kLang[[kReportLang]]
 data_retrieval_mode = "api"
 # API
 api_url   = redcap_api_url
-api_token = hhs_endline_moz # TIPTOP HHS Endline mozambique
+api_token = hhs_baseline_sl # MULTIPLY HHS Sierra Leona
 non_retrieved_records = c("cluster", "facility")
 # File
 file_prefix = "DATA/DATA_WITH_NO_DUPS/XXX"
@@ -23,18 +23,103 @@ file_time   ="10:33"
 
 # Study area description
 study_area_id           = 1
-country_name            = "MOZAMBIQUE"
-study_area_label        = "Nhamatanda"
-study_area_column       = "nhamatanda"
+country_name            = "SIERRA LEONE"
+study_area_label        = "Sierra Leona"
+study_area_column       = "sierra_leona"
 sample_size             = 822
-partner.name            = "CISM"
+partner.name            = "template"
 # sample_size * 5 (5 households to find one eligible woman)
 household_to_be_visited = 4110
 
 data_timestamp = dataTimestamp(data_retrieval_mode, file_date, file_time)
 ```
 
+```{r title, include=FALSE}
+#Languages
+report.title <- paste(language$head.survey, '-', language$head.report, ':', country_name, '-', study_area_label)
+```
 
+---
+title: "`r report.title`"
+author: "Marc Bañuls Tornero"
+date: `r data_timestamp`
+output:
+  html_document: default
+  pdf_document: default
+---
+
+<style>
+.main-container{
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.col-container{
+  overflow: auto;
+  position: relative;
+}
+.col-left{
+  float: left;
+  width: 50%;
+}
+.col-left-40{
+  float: left;
+  width: 40%;
+}
+.col-right{
+  float: right;
+  width: 50%;
+}
+.col-bottom{
+  position: absolute;
+  bottom: 0px;
+}
+.big-number{
+  font-size: 95px;
+}
+.medium-number{
+  font-size: 40px;
+}
+.text-center{
+  text-align: center;
+}
+.text-right{
+  text-align: right;
+}
+.text-left{
+  text-align: left;
+}
+.vertical-small-padding{
+  padding: 0 15px 0 15px;
+}
+.minnor-header{
+  font-size: 18px;
+}
+.text-color-medium-value{
+  color: #585859;
+}
+.text-color-big-value{
+  color: #31708f;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height = 7.5)
+
+hhs_data = readData(data_retrieval_mode, file_prefix, file_content, file_date, file_time, api_url, 
+                    api_token, non_retrieved_records)
+hhs_data = hhs_data[hhs_data$district == study_area_id, ]
+hhs_data = hhs_data[!is.na(hhs_data$record_id), ]
+
+# Global variables
+last_record_date = lastRecordDate(hhs_data)
+number_of_records = numberOfRecords(hhs_data)
+```
+
+```{r out.width="30px", echo=FALSE}
+knitr::include_graphics("github_icon.png")
+```
 
 
 
