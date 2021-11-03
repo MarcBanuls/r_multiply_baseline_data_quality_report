@@ -251,7 +251,7 @@ sameInterview = function(record1, record2) {
     gps_distance = distm(c(record1$longitude, record1$latitude), 
                          c(record2$longitude, record2$latitude), fun = distHaversine)
   
-  diff_birth = NA
+  diff_child_birth_dates = NA
   # Compute difference between child births
   if(!is.na(record1$child_birth) & !is.na(record2$child_birth)) {
     if(consent1 == 1 & consent2 == 1)
@@ -352,7 +352,7 @@ duplicatedRecords = function(hhs_data, study_area_column, study_area_label) {
   duplicated_records$cluster = duplicated_records[, column]
   
   columns = c("record_id", "district", "cluster", "household", "latitude", "longitude", 
-              "hh_initials", "consent", "interviewer_id", "interview_date","interviewer_id_rdt", "interviewer_date_rdt")
+              "hh_initials", "consent", "interviewer_id", "interview_date")
   duplicated_records_summary = duplicated_records[
     order(duplicated_records$district, duplicated_records$cluster, duplicated_records$household), 
     columns]

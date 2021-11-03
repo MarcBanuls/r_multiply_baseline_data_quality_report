@@ -130,7 +130,7 @@ knitr::include_graphics("github_icon.png")
 
 `r language$progress.partner` [`r partner.name`](http://manhica.org).
 
-```{r}
+```{r, echo=FALSE}
 # Issue to be solved
 #consented   = numberOfparticipantsWhoConsented(hhs_data)
 #recruitment = recruitmentRate(hhs_data, sample_size)
@@ -144,7 +144,7 @@ hhs_data$longitude <- NA
 ```
 
 ### `r language$progress.subtitle1`
-```{r}
+```{r, echo=FALSE}
 #r recruitment and r consented not used so we remove this div class for the moment:
 #<div class="col-left text-center">
 #  `r language$progress.women` @ `r study_area_label`
