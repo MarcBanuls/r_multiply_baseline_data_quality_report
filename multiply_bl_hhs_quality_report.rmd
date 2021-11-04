@@ -173,7 +173,7 @@ progressOfArea(hhs_data, study_area_column, study_area_label, interval = 10, req
 ### `r sprintf(language$profile.subtitle1, study_area_label)`
 
 ```{r trial_profile_area_1, echo=FALSE, results="asis"}
-#trialProfileOfArea(hhs_data, study_area_column)
+trialProfileOfArea(hhs_data, study_area_column)
 ```
 
 <p style="page-break-before: always">

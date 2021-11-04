@@ -309,7 +309,7 @@ progressOfArea = function(hhs_data, study_area_column, study_area_label, interva
   if(length(visits_number) > 0) {
     max_y_axis = max(visits_number) + interval
     consented_number = table(hhs_data[
-      hhs_data$children_2_years > 0 & hhs_data$children_no_icaria > 0 & hhs_data$consent == 1, column])
+      hhs_data$children_2_years > 0 & hhs_data$children_no_icaria > 0, column])
     
     dat = union(visits_number, consented_number)
     par(cex.lab = 1.5, cex.main = 2, cex.axis = 1.05, mar = c(8, 8, 4, 0))
@@ -333,6 +333,227 @@ progressOfArea = function(hhs_data, study_area_column, study_area_label, interva
   }
 }
 
+# Tables ---------------------
+
+trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
+  #browser()
+  maximum_number_of_columns = 29
+  font_size = 10
+  column = paste0("cluster_", study_area_column)
+  
+  number_hh_selected_visited = table(hhs_data[column])
+  if(length(number_hh_selected_visited) > 0) {
+    number_hh_selected_interviewed = table(hhs_data[hhs_data$hh_acceptance == 1, column])
+    
+    number_children_2_years_df = setNames(
+      aggregate(children_2_years ~ get(column), FUN = sum, data = hhs_data), 
+      c(column, "children_2_years")
+    )
+    number_children_2_years_list = pivot(
+      indexes = names(number_hh_selected_visited), 
+      index_column = column, 
+      value_column = "children_2_years", 
+      df = number_children_2_years_df
+    )
+    
+    number_eligible_children_df = setNames(
+      aggregate(children_no_icaria ~ get(column), FUN = sum, data = hhs_data),
+      c(column, "children_no_icaria")
+    )
+    number_eligible_children_list = pivot(
+      indexes = names(number_hh_selected_visited),
+      index_column = column,
+      value_column = "children_no_icaria",
+      df = number_eligible_children_df
+    )
+    
+    children_2_years_profile = union(
+      number_children_2_years_list, 
+      number_eligible_children_list
+    )
+    
+    number_children_interviewed = table(
+      subset(hhs_data, children_2_years > 0 & children_no_icaria > 0)[column])
+    number_children_interrupt_interview = table(
+      subset(hhs_data, consent == 1 & 
+               (is.na(children_2_years) | is.na(children_no_icaria)))[column])
+    number_children_non_interviewed = table(subset(hhs_data, consent == 0)[column])
+    
+    eligible_children_selected = union(number_children_interviewed, number_children_interrupt_interview, 
+                                       number_children_non_interviewed)
+    if(ncol(eligible_children_selected) > 0) {
+      eligible_children_selected_totals = eligible_children_selected[1,] + eligible_children_selected[2,] + eligible_children_selected[3,]
+    } else {
+      eligible_children_selected_totals = number_children_interviewed # empty table 
+    }
+    
+    number_children_denied_consent = table(hhs_data[hhs_data$why_not_consent == 0, column])
+    number_children_absent = table(hhs_data[hhs_data$why_not_consent == 2, column])
+    number_children_unabled = table(hhs_data[hhs_data$why_not_consent == 1, column])
+    number_children_other_reason = table(hhs_data[hhs_data$why_not_consent == 88, column])
+    
+    number_hh_empty = table(hhs_data[hhs_data$hh_available == 2, column])
+    number_hh_head_not_found = table(hhs_data[hhs_data$hh_available == 0, column])
+    number_hh_head_refused = table(hhs_data[hhs_data$hh_acceptance == 0, column])
+    
+    hh_selected_not_interviewed = union(number_hh_empty, number_hh_head_refused)
+    if(ncol(hh_selected_not_interviewed) > 0)
+      hh_selected_not_interviewed_totals = 
+      hh_selected_not_interviewed[1,] + hh_selected_not_interviewed[2,]
+    else
+      hh_selected_not_interviewed_totals = number_hh_empty # empty table
+    
+    trial_profile = union(
+      number_hh_selected_visited, 
+      number_hh_selected_interviewed, 
+      number_children_2_years_list, 
+      children_2_years_profile[1,] - children_2_years_profile[2,], 
+      number_eligible_children_list,
+      eligible_children_selected_totals,
+      number_children_interviewed,
+      number_children_interrupt_interview,
+      number_children_non_interviewed,
+      number_children_denied_consent,
+      number_children_absent,
+      number_children_unabled,
+      number_children_other_reason,
+      hh_selected_not_interviewed_totals,
+      number_hh_empty,
+      number_hh_head_not_found,
+      number_hh_head_refused
+    )
+    row.names(trial_profile) = c(
+      language$profile.row2, 
+      language$profile.row3, 
+      language$profile.row4,
+      paste0(language$profile.row5, footnote_marker_symbol(1, "html")),
+      language$profile.row6,
+      language$profile.row7,
+      language$profile.row8,
+      language$profile.row9,
+      language$profile.row10,
+      language$profile.row11,
+      language$profile.row12,
+      language$profile.row13,
+      language$profile.row14,
+      language$profile.row15,
+      language$profile.row16,
+      paste0(language$profile.row17, footnote_marker_symbol(2, "html")),
+      language$profile.row18
+    )
+    colnames(trial_profile) = paste0("C", colnames(trial_profile))
+    #browser()
+    # Consistency checks within the trial profile
+    trial_profile_checked = trial_profile
+    for(i in colnames(trial_profile)) {
+      # non_interviewed HH = empty + refused
+      trial_profile_checked[c(14, 15, 17), i] = cell_spec(
+        x        = trial_profile[c(14, 15, 17),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[15, i] + trial_profile[17, i] != trial_profile[14, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[15, i] + trial_profile[17, i] != trial_profile[14, i], 
+                 language$profile.check1, "")
+      )
+      
+      # children = eligible + non_eligible
+      trial_profile_checked[c(3, 4, 5), i] = cell_spec(
+        x        = trial_profile[c(3, 4, 5),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[4, i] + trial_profile[5, i] != trial_profile[3, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[4, i] + trial_profile[5, i] != trial_profile[3, i], 
+                 language$profile.check2, "")
+      )
+      
+      # non_interviewed children = denied + absent + unabled + other
+      trial_profile_checked[c(9, 10, 11, 12, 13), i] = cell_spec(
+        x        = trial_profile[c(9, 10, 11, 12, 13),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[10, i] + trial_profile[11, i] + trial_profile[12, i] + 
+                   trial_profile[13, i] != trial_profile[9, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[10, i] + trial_profile[11, i] + trial_profile[12, i] + 
+                   trial_profile[13, i]  != trial_profile[9, i], 
+                 language$profile.check3, "")
+      )
+      
+      # children selected = interviewed + interrupted + non_interviewed
+      trial_profile_checked[c(6, 7, 8, 9), i] = cell_spec(
+        x        = trial_profile[c(6, 7, 8, 9),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[7, i] + trial_profile[8, i] + trial_profile[9, i] 
+                 != trial_profile[6, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[7, i] + trial_profile[8, i] + trial_profile[9, i] 
+                 != trial_profile[6, i], 
+                 language$profile.check4, "")
+      )
+      
+      # visited HH = interviewed + non_interviewed
+      trial_profile_checked[c(1, 2, 14), i] = cell_spec(
+        x        = trial_profile[c(1, 2, 14),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[2, i] + trial_profile[14, i] != trial_profile[1, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[2, i] + trial_profile[14, i] != trial_profile[1, i], 
+                 language$profile.check5, "")
+      )
+    }
+    #browser()
+    if(ncol(trial_profile_checked) > maximum_number_of_columns) {
+      number_of_columns = ncol(trial_profile_checked)
+      middle = as.integer(number_of_columns / 2)
+      
+      print(kable(trial_profile_checked[,1:(middle + 2)], "html", escape = F) %>%
+              kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
+                            font_size = font_size) %>%
+              row_spec(0, bold = T, color = "white", background = "#494949") %>%
+              row_spec(c(1, 2, 3, 14), bold = T) %>%
+              add_indent(c(10, 11, 12, 13))
+      )
+      print(kable(trial_profile_checked[,(middle + 3):number_of_columns], "html", escape = F) %>%
+              kable_styling(bootstrap_options = c("striped", "hover", "responsive"), font_size = 
+                              font_size) %>%
+              row_spec(0, bold = T, color = "white", background = "#494949") %>%
+              row_spec(c(1, 2, 3, 14), bold = T) %>%
+              add_indent(c(10, 11, 12, 13)) %>%
+              footnote(
+                general_title = language$profile.notes.title,
+                general = language$profile.notes.desc, 
+                symbol = c(
+                  language$profile.note1, 
+                  language$profile.note2
+                )
+              )
+      )
+    } else {
+      print(kable(trial_profile_checked, "html", escape = F) %>%
+              kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
+                            font_size = font_size) %>%
+              row_spec(0, bold = T, color = "white", background = "#494949") %>%
+              row_spec(c(1, 2, 3, 14), bold = T) %>%
+              add_indent(c(10, 11, 12, 13)) %>%
+              footnote(
+                general_title = language$profile.notes.title,
+                general = language$profile.notes.desc, 
+                symbol = c(
+                  language$profile.note1, 
+                  language$profile.note2
+                )
+              )
+      )
+    }
+  } else {
+    print(language$progress.no.data)
+  }
+  
+}
 # TRIAL PROFILE DATA in progress, focus on duplicates
 
 # SP indicators to be done
