@@ -146,14 +146,14 @@ hhs_data$longitude <- NA
 ### `r language$progress.subtitle1`
 
 
-#<div class="col-left text-center">
-#  `r language$progress.women` @ `r study_area_label`
-#
-#
-#  <span class="big-number">`r recruitment`%</span>
-#
-#  `r consented` / `r sample_size`
-#</div>
+<div class="col-left text-center">
+  `r language$progress.women` @ `r study_area_label`
+
+
+  <span class="big-number">`r recruitment`%</span>
+
+  `r consented` / `r sample_size`
+</div>
 
 
 
