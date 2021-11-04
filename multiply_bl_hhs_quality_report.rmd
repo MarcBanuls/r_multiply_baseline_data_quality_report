@@ -41,7 +41,7 @@ report.title <- paste(language$head.survey, '-', language$head.report, ':', coun
 
 ---
 title: "`r report.title`"
-author: "Marc Bañuls Tornero"
+author: "Máximo Ramírez Robles"
 date: `r data_timestamp`
 output:
   html_document: default
