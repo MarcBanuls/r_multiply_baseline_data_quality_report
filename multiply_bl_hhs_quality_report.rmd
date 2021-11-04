@@ -145,7 +145,7 @@ hhs_data$longitude <- NA
 
 ### `r language$progress.subtitle1`
 
-#r recruitment and r consented not used so we remove this div class for the moment:
+
 #<div class="col-left text-center">
 #  `r language$progress.women` @ `r study_area_label`
 #
