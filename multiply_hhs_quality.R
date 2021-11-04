@@ -152,9 +152,14 @@ pivot <- function(indexes, index_column, value_column, df) {
 }
 
 # Compute number of participants who consented the interview
+#we create new variables:
 numberOfparticipantsWhoConsented = function(hhs_data) {
   #browser()
-  consented = table(hhs_data$children_2_years, hhs_data$children_no_icaria)
+  hhs_data$children_2_years_q[hhs_data$children_2_years > 0] = 1
+  hhs_data$children_2_years_q[hhs_data$children_2_years == 0] = 0
+  hhs_data$children_no_icaria_q[hhs_data$children_no_icaria > 0] = 1
+  hhs_data$children_no_icaria_q[hhs_data$children_no_icaria == 0] = 0
+  consented = table(hhs_data$children_2_years_q, hhs_data$children_no_icaria_q)
   
   if(length(consented) > 0)
     consented = consented[, "1"]

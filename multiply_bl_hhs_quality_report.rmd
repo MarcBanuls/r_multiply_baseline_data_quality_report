@@ -26,9 +26,9 @@ study_area_id           = 1
 country_name            = "TEST"
 study_area_label        = "District 1"
 study_area_column       = "district_1"
-sample_size             = 822
+sample_size             = 100
 partner.name            = "template"
-# sample_size * 5 (5 households to find one eligible woman)
+# sample_size * 5 (5 households to find one eligible children)
 household_to_be_visited = 4110
 
 data_timestamp = dataTimestamp(data_retrieval_mode, file_date, file_time)
@@ -132,8 +132,8 @@ knitr::include_graphics("github_icon.png")
 
 ```{r, echo=FALSE}
 # Issue to be solved
-#consented   = numberOfparticipantsWhoConsented(hhs_data)
-#recruitment = recruitmentRate(hhs_data, sample_size)
+consented   = numberOfparticipantsWhoConsented(hhs_data)
+recruitment = recruitmentRate(hhs_data, sample_size)
 ```
 
 ```{r remove_lat_lon, echo=FALSE}
@@ -144,7 +144,7 @@ hhs_data$longitude <- NA
 ```
 
 ### `r language$progress.subtitle1`
-```{r, echo=FALSE}
+
 #r recruitment and r consented not used so we remove this div class for the moment:
 #<div class="col-left text-center">
 #  `r language$progress.women` @ `r study_area_label`
@@ -154,7 +154,7 @@ hhs_data$longitude <- NA
 #
 #  `r consented` / `r sample_size`
 #</div>
-```
+
 
 
 <div class="col-right text-center">
