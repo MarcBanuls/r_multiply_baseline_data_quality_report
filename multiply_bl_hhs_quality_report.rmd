@@ -121,7 +121,7 @@ number_of_records = numberOfRecords(hhs_data)
 knitr::include_graphics("github_icon.png")
 ```
 
-[`r language$head.github`](https://github.com/maxramirez84/r_tiptop_baseline_hhs_data_quality_report)
+[`r language$head.github`](https://github.com/MarcBanuls/r_multiply_baseline_data_quality_report)
 
 ## `r language$progress.title`
 
@@ -163,7 +163,7 @@ hhs_data$longitude <- NA
 <p style="page-break-before: always">
 
 ```{r progress_area_1, echo=FALSE}
-#progressOfArea(hhs_data, study_area_column, study_area_label, interval = 10, required_visits_mean = 60, lang = language)
+progressOfArea(hhs_data, study_area_column, study_area_label, interval = 10, required_visits_mean = 60, lang = language)
 ```
 
 <p style="page-break-before: always">
