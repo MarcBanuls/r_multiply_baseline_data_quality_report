@@ -13,7 +13,7 @@ language <- kLang[[kReportLang]]
 data_retrieval_mode = "api"
 # API
 api_url   = redcap_api_url
-api_token = hhs_baseline_sl # MULTIPLY HHS Sierra Leona
+api_token = hhs_baseline_test # MULTIPLY HHS Sierra Leona
 non_retrieved_records = c("cluster", "facility")
 # File
 file_prefix = "DATA/DATA_WITH_NO_DUPS/XXX"
@@ -24,8 +24,8 @@ file_time   ="10:33"
 # Study area description
 study_area_id           = 1
 country_name            = "TEST"
-study_area_label        = "District 1"
-study_area_column       = "district_1"
+study_area_label        = "Bombali"
+study_area_column       = "bombali"
 sample_size             = 100
 partner.name            = "template"
 # sample_size * 5 (5 households to find one eligible children)
