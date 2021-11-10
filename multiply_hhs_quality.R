@@ -404,19 +404,9 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
     else
       hh_selected_not_interviewed_totals = number_hh_empty # empty table
     
-    #additions multiply
-    number_hh_5_years = table(hhs_data[hhs_data$are_children_5_years > 0, column])
-    
-    number_are_children_5_years_df = setNames(
-      aggregate(are_children_5_years ~ get(column), FUN = sum, data = hhs_data), 
-      c(column, "are_children_5_years")
-    )
-    number_are_children_5_years_list = pivot(
-      indexes = names(number_hh_selected_visited), 
-      index_column = column, 
-      value_column = "are_children_5_years", 
-      df = number_are_children_5_years_df
-    )
+    #addition multiply
+    number_rdt = table(hhs_data[hhs_data$rdt == 1, column])
+    number_rdt_positive = table(hhs_data[hhs_data$rdt_result == 1, column])
     
     
     trial_profile = union(
@@ -427,6 +417,8 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       number_eligible_children_list,
       eligible_children_selected_totals,
       number_children_interviewed,
+      number_rdt,
+      number_rdt_positive,
       number_children_interrupt_interview,
       number_children_non_interviewed,
       number_children_denied_consent,
@@ -436,9 +428,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       hh_selected_not_interviewed_totals,
       number_hh_empty,
       number_hh_head_not_found,
-      number_hh_head_refused,
-      number_hh_5_years,
-      number_are_children_5_years_list
+      number_hh_head_refused
     )
     row.names(trial_profile) = c(
       language$profile.row2, 
@@ -458,8 +448,8 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       language$profile.row16,
       paste0(language$profile.row17, footnote_marker_symbol(2, "html")),
       language$profile.row18,
-      "number_hh_5_years",
-      "number_are_children_5_years_list"
+      language$profile.row19,
+      language$profile.row20
     )
     colnames(trial_profile) = paste0("C", colnames(trial_profile))
     #browser()
