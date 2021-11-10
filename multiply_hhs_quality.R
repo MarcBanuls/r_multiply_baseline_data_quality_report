@@ -457,13 +457,13 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
     trial_profile_checked = trial_profile
     for(i in colnames(trial_profile)) {
       # non_interviewed HH = empty + refused
-      trial_profile_checked[c(14, 15, 17), i] = cell_spec(
-        x        = trial_profile[c(14, 15, 17),i],
+      trial_profile_checked[c(16, 17, 19), i] = cell_spec(
+        x        = trial_profile[c(16, 17, 19),i],
         format   ="html",
         color    = 
-          ifelse(trial_profile[15, i] + trial_profile[17, i] != trial_profile[14, i], "red", ""),
+          ifelse(trial_profile[17, i] + trial_profile[19, i] != trial_profile[16, i], "red", ""),
         tooltip  = 
-          ifelse(trial_profile[15, i] + trial_profile[17, i] != trial_profile[14, i], 
+          ifelse(trial_profile[17, i] + trial_profile[19, i] != trial_profile[16, i], 
                  language$profile.check1, "")
       )
       
@@ -479,39 +479,39 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       )
       
       # non_interviewed children = denied + absent + unabled + other
-      trial_profile_checked[c(9, 10, 11, 12, 13), i] = cell_spec(
-        x        = trial_profile[c(9, 10, 11, 12, 13),i],
+      trial_profile_checked[c(11, 12, 13, 14, 15), i] = cell_spec(
+        x        = trial_profile[c(11, 12, 13, 14, 15),i],
         format   ="html",
         color    = 
-          ifelse(trial_profile[10, i] + trial_profile[11, i] + trial_profile[12, i] + 
-                   trial_profile[13, i] != trial_profile[9, i], "red", ""),
+          ifelse(trial_profile[12, i] + trial_profile[13, i] + trial_profile[14, i] + 
+                   trial_profile[15, i] != trial_profile[11, i], "red", ""),
         tooltip  = 
-          ifelse(trial_profile[10, i] + trial_profile[11, i] + trial_profile[12, i] + 
-                   trial_profile[13, i]  != trial_profile[9, i], 
+          ifelse(trial_profile[12, i] + trial_profile[13, i] + trial_profile[14, i] + 
+                   trial_profile[15, i]  != trial_profile[11, i], 
                  language$profile.check3, "")
       )
       
       # children selected = interviewed + interrupted + non_interviewed
-      trial_profile_checked[c(6, 7, 8, 9), i] = cell_spec(
-        x        = trial_profile[c(6, 7, 8, 9),i],
+      trial_profile_checked[c(6, 7, 10, 11), i] = cell_spec(
+        x        = trial_profile[c(6, 7, 10, 11),i],
         format   ="html",
         color    = 
-          ifelse(trial_profile[7, i] + trial_profile[8, i] + trial_profile[9, i] 
+          ifelse(trial_profile[7, i] + trial_profile[10, i] + trial_profile[11, i] 
                  != trial_profile[6, i], "red", ""),
         tooltip  = 
-          ifelse(trial_profile[7, i] + trial_profile[8, i] + trial_profile[9, i] 
+          ifelse(trial_profile[7, i] + trial_profile[10, i] + trial_profile[11, i] 
                  != trial_profile[6, i], 
                  language$profile.check4, "")
       )
       
       # visited HH = interviewed + non_interviewed
-      trial_profile_checked[c(1, 2, 14), i] = cell_spec(
-        x        = trial_profile[c(1, 2, 14),i],
+      trial_profile_checked[c(1, 2, 16), i] = cell_spec(
+        x        = trial_profile[c(1, 2, 16),i],
         format   ="html",
         color    = 
-          ifelse(trial_profile[2, i] + trial_profile[14, i] != trial_profile[1, i], "red", ""),
+          ifelse(trial_profile[2, i] + trial_profile[16, i] != trial_profile[1, i], "red", ""),
         tooltip  = 
-          ifelse(trial_profile[2, i] + trial_profile[14, i] != trial_profile[1, i], 
+          ifelse(trial_profile[2, i] + trial_profile[16, i] != trial_profile[1, i], 
                  language$profile.check5, "")
       )
     }
@@ -524,15 +524,15 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
               kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
                             font_size = font_size) %>%
               row_spec(0, bold = T, color = "white", background = "#494949") %>%
-              row_spec(c(1, 2, 3, 14), bold = T) %>%
-              add_indent(c(10, 11, 12, 13))
+              row_spec(c(1, 2, 3, 16), bold = T) %>%
+              add_indent(c(12, 13, 14, 15))
       )
       print(kable(trial_profile_checked[,(middle + 3):number_of_columns], "html", escape = F) %>%
               kable_styling(bootstrap_options = c("striped", "hover", "responsive"), font_size = 
                               font_size) %>%
               row_spec(0, bold = T, color = "white", background = "#494949") %>%
-              row_spec(c(1, 2, 3, 14), bold = T) %>%
-              add_indent(c(10, 11, 12, 13)) %>%
+              row_spec(c(1, 2, 3, 16), bold = T) %>%
+              add_indent(c(12, 13, 14, 15)) %>%
               footnote(
                 general_title = language$profile.notes.title,
                 general = language$profile.notes.desc, 
