@@ -133,10 +133,10 @@ knitr::include_graphics("github_icon.png")
 ```{r, echo=FALSE}
 # Issue to be solved
 # Created yes/no variables to use in the and childbirth date checks
-
-hhs_data$child_birth_q[hhs_data$children_2_years == 0] = 0
-hhs_data$child_birth_q[hhs_data$children_2_years > 0] = 1
-
+hhs_data$diff_in_days = difftime(hhs_data$interview_date, hhs_data$child_birth, units = "days")
+hhs_data$diff_in_months = floor((hhs_data$diff_in_days / 365) * 12)
+hhs_data$child_birth_q[hhs_data$diff_in_months < 10 | hhs_data$diff_in_months > 24] = 0
+hhs_data$child_birth_q[hhs_data$diff_in_months <= 24 | hhs_data$diff_in_months >= 10] = 1
 hhs_data$children_no_icaria_q[hhs_data$children_no_icaria > 0] = 1
 hhs_data$children_no_icaria_q[hhs_data$children_no_icaria == 0] = 0
   
