@@ -107,8 +107,23 @@ output:
 library(knitr)
 knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height = 7.5)
 
-hhs_data = readData(data_retrieval_mode, file_prefix, file_content, file_date, file_time, api_url, 
+data = readData(data_retrieval_mode, file_prefix, file_content, file_date, file_time, api_url, 
                     api_token, non_retrieved_records)
+
+# NEEDED TO LINK RDT MALARIA EVENT WITH HHS before filtering by district.
+# Data separated in two arms. we separate in two dataframes by its arm name
+hhs <- data[data$redcap_event_name == 'household_baseline_arm_1',]
+rdt <- data[data$redcap_event_name == 'malaria_rdt_arm_1',]
+
+# Remove the variables for each df that are empty (and arm name to avoid interferences)
+hhs <- hhs[,-c(2,188:220)]
+rdt <- rdt[,-c(2:187)]
+
+# Merge the two dataframes to have all data in one row per record_id
+# (Named hhs_data due to reuse of tiptop functions that only worked with hhs data, not rdt)
+hhs_data <- merge(hhs, rdt, by = "record_id", all.x = TRUE)
+
+# Filter by district
 hhs_data = hhs_data[hhs_data$district == study_area_id, ]
 hhs_data = hhs_data[!is.na(hhs_data$record_id), ]
 
@@ -116,6 +131,8 @@ hhs_data = hhs_data[!is.na(hhs_data$record_id), ]
 last_record_date = lastRecordDate(hhs_data)
 number_of_records = numberOfRecords(hhs_data)
 ```
+
+
 
 ```{r out.width="30px", echo=FALSE}
 knitr::include_graphics("github_icon.png")
