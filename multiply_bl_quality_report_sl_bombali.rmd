@@ -13,7 +13,7 @@ language <- kLang[[kReportLang]]
 data_retrieval_mode = "api"
 # API
 api_url   = redcap_api_url
-api_token = hhs_baseline_test # MULTIPLY HHS testing case
+api_token = hhs_baseline_sl # MULTIPLY HHS Sierra Leona
 non_retrieved_records = c("cluster", "facility")
 # File
 file_prefix = "DATA/DATA_WITH_NO_DUPS/XXX"
