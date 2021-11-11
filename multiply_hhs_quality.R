@@ -415,7 +415,8 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       number_children_2_years_list, 
       children_2_years_profile[1,] - children_2_years_profile[2,], 
       number_eligible_children_list,
-      eligible_children_selected_totals,
+      number_children_interviewed, #it really goes "eligible_children_selected_totals" but it is not appearing correctly in the table
+      # Could be due to only being one cluster, so it does not compute it correctly. try later when more clusters available. in testing works
       number_children_interviewed,
       number_rdt,
       number_rdt_positive,

@@ -164,8 +164,8 @@ recruitment = recruitmentRate(hhs_data, sample_size)
 ```{r remove_lat_lon, echo=FALSE}
 # TO BE REMOVED
 #CHECK LAT LON AS NA
-hhs_data$latitude <- NA
-hhs_data$longitude <- NA
+#hhs_data$latitude <- NA
+#hhs_data$longitude <- NA
 ```
 
 ### `r language$progress.subtitle1`
