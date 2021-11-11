@@ -768,13 +768,13 @@ duplicatesSummary = function(hhs_data, study_area_column) {
     non_interviewed = union(non_interviewed_visits_number_area, 
                             non_interviewed_duplicated_records_area)
     if(ncol(non_interviewed) > 0)
-      non_interviewed_totals = non_interviewed[1,] - non_interviewed[2,]
+      non_interviewed_totals = non_interviewed[1,, drop = FALSE] - non_interviewed[2,, drop = FALSE]
     else
       non_interviewed_totals = non_interviewed_visits_number_area # empty table
     
     interviewed = union(interviewed_number_area, interviewed_duplicated_records_area)
     if(ncol(interviewed) > 0)
-      interviewed_totals = interviewed[1,] - interviewed[2,]
+      interviewed_totals = interviewed[1,, drop = FALSE] - interviewed[2,, drop = FALSE]
     else
       interviewed_totals = interviewed_number_area # empty table
     #browser()
