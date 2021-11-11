@@ -404,32 +404,43 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
     else
       hh_selected_not_interviewed_totals = number_hh_empty # empty table
     
-    #addition multiply
+    #ADDITIONS MULTIPLY
+    number_hh_children_5_years = table(hhs_data[hhs_data$are_children_5_years > 0, column])
+    
+    number_children_5_years_df = setNames(
+      aggregate(are_children_5_years ~ get(column), FUN = sum, data = hhs_data), 
+      c(column, "are_children_5_years")
+    )
+    number_children_5_years_list = pivot(
+      indexes = names(number_hh_selected_visited), 
+      index_column = column, 
+      value_column = "are_children_5_years", 
+      df = number_children_5_years_df
+    )
+    
     number_rdt = table(hhs_data[hhs_data$rdt == 1, column])
     number_rdt_positive = table(hhs_data[hhs_data$rdt_result == 1, column])
     
     
     trial_profile = union(
-      number_hh_selected_visited, 
-      number_hh_selected_interviewed, 
-      number_children_2_years_list, 
-      children_2_years_profile[1,] - children_2_years_profile[2,], 
-      number_eligible_children_list,
+      number_hh_selected_visited, #hh selected visited
+      number_hh_selected_interviewed,  #hh selected interviewed
+      number_hh_children_5_years, #number of hh with u5 children
+      number_children_5_years_list, #number of total u5 children
+      #number_hh_children_2_years, #number of hh with u2 children
       number_children_interviewed, #it really goes "eligible_children_selected_totals" but it is not appearing correctly in the table
       # Could be due to only being one cluster, so it does not compute it correctly. try later when more clusters available. in testing works
-      number_children_interviewed,
-      number_rdt,
-      number_rdt_positive,
-      number_children_interrupt_interview,
-      number_children_non_interviewed,
-      number_children_denied_consent,
-      number_children_absent,
-      number_children_unabled,
-      number_children_other_reason,
-      hh_selected_not_interviewed_totals,
-      number_hh_empty,
-      number_hh_head_not_found,
-      number_hh_head_refused
+      number_children_interviewed, #number of caretakers interviewed
+      number_rdt, #number or RDT performed
+      number_rdt_positive, #number of RDT positives
+      #number_children_non_interviewed, #number of children whose caretaker is NOT interviewed
+      number_children_denied_consent, #number of caretakers that denied consent
+      number_children_absent, #number of caretakers that were absent
+      number_children_unabled, #number of caretakers unable to respond
+      #hh_visited_no_consent, # number of hh visited but hh head/adults refused to consent the interview
+      hh_selected_not_interviewed_totals, #number of hh visited but contact with hh head/adult not made
+      number_hh_empty, #number hh that were empty or destroyed
+      number_hh_head_not_found #number hh heads/other adult not found
     )
     row.names(trial_profile) = c(
       language$profile.row2, 
@@ -445,77 +456,13 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       language$profile.row12,
       language$profile.row13,
       language$profile.row14,
-      language$profile.row15,
-      language$profile.row16,
-      paste0(language$profile.row17, footnote_marker_symbol(2, "html")),
-      language$profile.row18,
-      language$profile.row19,
-      language$profile.row20
+      paste0(language$profile.row17, footnote_marker_symbol(2, "html"))
     )
     colnames(trial_profile) = paste0("C", colnames(trial_profile))
     #browser()
     # Consistency checks within the trial profile
     trial_profile_checked = trial_profile
-    for(i in colnames(trial_profile)) {
-      # non_interviewed HH = empty + refused
-      trial_profile_checked[c(16, 17, 19), i] = cell_spec(
-        x        = trial_profile[c(16, 17, 19),i],
-        format   ="html",
-        color    = 
-          ifelse(trial_profile[17, i] + trial_profile[19, i] != trial_profile[16, i], "red", ""),
-        tooltip  = 
-          ifelse(trial_profile[17, i] + trial_profile[19, i] != trial_profile[16, i], 
-                 language$profile.check1, "")
-      )
-      
-      # children = eligible + non_eligible
-      trial_profile_checked[c(3, 4, 5), i] = cell_spec(
-        x        = trial_profile[c(3, 4, 5),i],
-        format   ="html",
-        color    = 
-          ifelse(trial_profile[4, i] + trial_profile[5, i] != trial_profile[3, i], "red", ""),
-        tooltip  = 
-          ifelse(trial_profile[4, i] + trial_profile[5, i] != trial_profile[3, i], 
-                 language$profile.check2, "")
-      )
-      
-      # non_interviewed children = denied + absent + unabled + other
-      trial_profile_checked[c(11, 12, 13, 14, 15), i] = cell_spec(
-        x        = trial_profile[c(11, 12, 13, 14, 15),i],
-        format   ="html",
-        color    = 
-          ifelse(trial_profile[12, i] + trial_profile[13, i] + trial_profile[14, i] + 
-                   trial_profile[15, i] != trial_profile[11, i], "red", ""),
-        tooltip  = 
-          ifelse(trial_profile[12, i] + trial_profile[13, i] + trial_profile[14, i] + 
-                   trial_profile[15, i]  != trial_profile[11, i], 
-                 language$profile.check3, "")
-      )
-      
-      # children selected = interviewed + interrupted + non_interviewed
-      trial_profile_checked[c(6, 7, 10, 11), i] = cell_spec(
-        x        = trial_profile[c(6, 7, 10, 11),i],
-        format   ="html",
-        color    = 
-          ifelse(trial_profile[7, i] + trial_profile[10, i] + trial_profile[11, i] 
-                 != trial_profile[6, i], "red", ""),
-        tooltip  = 
-          ifelse(trial_profile[7, i] + trial_profile[10, i] + trial_profile[11, i] 
-                 != trial_profile[6, i], 
-                 language$profile.check4, "")
-      )
-      
-      # visited HH = interviewed + non_interviewed
-      trial_profile_checked[c(1, 2, 16), i] = cell_spec(
-        x        = trial_profile[c(1, 2, 16),i],
-        format   ="html",
-        color    = 
-          ifelse(trial_profile[2, i] + trial_profile[16, i] != trial_profile[1, i], "red", ""),
-        tooltip  = 
-          ifelse(trial_profile[2, i] + trial_profile[16, i] != trial_profile[1, i], 
-                 language$profile.check5, "")
-      )
-    }
+    # removed consistencies for the moment, saved in file just in case
     #browser()
     if(ncol(trial_profile_checked) > maximum_number_of_columns) {
       number_of_columns = ncol(trial_profile_checked)
