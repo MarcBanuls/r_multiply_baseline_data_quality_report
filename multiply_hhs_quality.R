@@ -486,15 +486,15 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
               kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
                             font_size = font_size) %>%
               row_spec(0, bold = T, color = "white", background = "#494949") %>%
-              row_spec(c(1, 2, 3, 16), bold = T) %>%
-              add_indent(c(12, 13, 14, 15))
+              row_spec(c(1, 2, 7, 8, 10, 15), bold = T) %>%
+              add_indent(c(9, 11, 12, 13, 16, 17))
       )
       print(kable(trial_profile_checked[,(middle + 3):number_of_columns], "html", escape = F) %>%
               kable_styling(bootstrap_options = c("striped", "hover", "responsive"), font_size = 
                               font_size) %>%
               row_spec(0, bold = T, color = "white", background = "#494949") %>%
-              row_spec(c(1, 2, 3, 16), bold = T) %>%
-              add_indent(c(12, 13, 14, 15)) %>%
+              row_spec(c(1, 2, 7, 8, 10, 15), bold = T) %>%
+              add_indent(c(9, 11, 12, 13, 16, 17)) %>%
               footnote(
                 general_title = language$profile.notes.title,
                 general = language$profile.notes.desc, 
@@ -508,8 +508,8 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
               kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
                             font_size = font_size) %>%
               row_spec(0, bold = T, color = "white", background = "#494949") %>%
-              row_spec(c(1, 2, 3, 14), bold = T) %>%
-              add_indent(c(10, 11, 12, 13)) %>%
+              row_spec(c(1, 2, 7, 8, 10, 15), bold = T) %>%
+              add_indent(c(9, 11, 12, 13, 16, 17)) %>%
               footnote(
                 general_title = language$profile.notes.title,
                 general = language$profile.notes.desc, 
