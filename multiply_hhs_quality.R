@@ -393,17 +393,6 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
     number_children_unabled = table(hhs_data[hhs_data$why_not_consent == 1, column])
     number_children_other_reason = table(hhs_data[hhs_data$why_not_consent == 88, column])
     
-    number_hh_empty = table(hhs_data[hhs_data$hh_available == 2, column])
-    number_hh_head_not_found = table(hhs_data[hhs_data$hh_available == 0, column])
-    number_hh_head_refused = table(hhs_data[hhs_data$hh_acceptance == 0, column])
-    
-    hh_selected_not_interviewed = union(number_hh_empty, number_hh_head_refused)
-    if(ncol(hh_selected_not_interviewed) > 0)
-      hh_selected_not_interviewed_totals = 
-      hh_selected_not_interviewed[1,] + hh_selected_not_interviewed[2,]
-    else
-      hh_selected_not_interviewed_totals = number_hh_empty # empty table
-    
     #ADDITIONS MULTIPLY
     number_hh_children_5_years = table(hhs_data[hhs_data$are_children_5_years > 0, column])
     
@@ -417,9 +406,30 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       value_column = "are_children_5_years", 
       df = number_children_5_years_df
     )
+    number_hh_children_2_years = table(hhs_data[hhs_data$children_2_years > 0, column])
     
     number_rdt = table(hhs_data[hhs_data$rdt == 1, column])
     number_rdt_positive = table(hhs_data[hhs_data$rdt_result == 1, column])
+    
+    number_children_selected_non_interviewed = table(
+      subset(hhs_data, children_2_years > 0 & children_no_icaria > 0 & consent == 0)[column])
+    
+    number_hh_visited_no_accept = table(hhs_data[hhs_data$hh_acceptance == 0, column])
+    number_adult_not_found = table(hhs_data[hhs_data$hh_acceptance == 77, column])
+    
+    number_hh_empty = table(hhs_data[hhs_data$hh_available == 2, column])
+    number_hh_head_not_found = table(hhs_data[hhs_data$hh_available == 0, column]) #not used anymore
+    number_hh_head_refused = table(hhs_data[hhs_data$hh_acceptance == 0, column])  #not used anymore
+    number_adult_not_found = table(hhs_data[hhs_data$hh_acceptance == 77, column]) #added for multiply
+    
+    hh_selected_not_contact_adult = union(number_hh_empty, number_adult_not_found) #changed to adapt "hh visited but contact with adult not made"
+    if(ncol(hh_selected_not_contact_adult) > 0)
+      hh_selected_not_contact_adult_totals = 
+      hh_selected_not_contact_adult[1,] + hh_selected_not_contact_adult[2,]
+    else
+      hh_selected_not_contact_adult_totals = number_hh_empty # empty table
+    
+    
     
     
     trial_profile = union(
@@ -427,28 +437,29 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       number_hh_selected_interviewed,  #hh selected interviewed
       number_hh_children_5_years, #number of hh with u5 children
       number_children_5_years_list, #number of total u5 children
-      #number_hh_children_2_years, #number of hh with u2 children
+      number_hh_children_2_years, #number of hh with u2 children
+      number_eligible_children_list, # number of eligible children (10-23 months and NON ICARIA)
       number_children_interviewed, #it really goes "eligible_children_selected_totals" but it is not appearing correctly in the table
       # Could be due to only being one cluster, so it does not compute it correctly. try later when more clusters available. in testing works
-      number_children_interviewed, #number of caretakers interviewed
+      # Following SOP of supervisors, it fits better "number_children_interviewed" than "eligible_children_Selected_totals", but check which is better.
       number_rdt, #number or RDT performed
       number_rdt_positive, #number of RDT positives
-      #number_children_non_interviewed, #number of children whose caretaker is NOT interviewed
+      number_children_selected_non_interviewed, #number of children whose children is selected but caretaker is NOT interviewed
       number_children_denied_consent, #number of caretakers that denied consent
       number_children_absent, #number of caretakers that were absent
       number_children_unabled, #number of caretakers unable to respond
-      #hh_visited_no_consent, # number of hh visited but hh head/adults refused to consent the interview
-      hh_selected_not_interviewed_totals, #number of hh visited but contact with hh head/adult not made
+      number_hh_visited_no_accept, # number of hh visited but hh head/adults refused to consent the interview
+      hh_selected_not_contact_adult_totals, #number of hh visited but contact with hh head/adult not made
       number_hh_empty, #number hh that were empty or destroyed
-      number_hh_head_not_found #number hh heads/other adult not found
+      number_adult_not_found #number hh heads/other adult not found
     )
     row.names(trial_profile) = c(
       language$profile.row2, 
       language$profile.row3, 
       language$profile.row4,
-      paste0(language$profile.row5, footnote_marker_symbol(1, "html")),
+      language$profile.row5,
       language$profile.row6,
-      language$profile.row7,
+      paste0(language$profile.row7, footnote_marker_symbol(1, "html")),
       language$profile.row8,
       language$profile.row9,
       language$profile.row10,
@@ -456,7 +467,10 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       language$profile.row12,
       language$profile.row13,
       language$profile.row14,
-      paste0(language$profile.row17, footnote_marker_symbol(2, "html"))
+      language$profile.row15,
+      language$profile.row16,
+      language$profile.row17,
+      language$profile.row18
     )
     colnames(trial_profile) = paste0("C", colnames(trial_profile))
     #browser()
@@ -485,8 +499,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
                 general_title = language$profile.notes.title,
                 general = language$profile.notes.desc, 
                 symbol = c(
-                  language$profile.note1, 
-                  language$profile.note2
+                  language$profile.note1
                 )
               )
       )
@@ -501,8 +514,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
                 general_title = language$profile.notes.title,
                 general = language$profile.notes.desc, 
                 symbol = c(
-                  language$profile.note1, 
-                  language$profile.note2
+                  language$profile.note1
                 )
               )
       )
