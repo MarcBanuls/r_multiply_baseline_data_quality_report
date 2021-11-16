@@ -148,7 +148,9 @@ knitr::include_graphics("github_icon.png")
 `r language$progress.partner` [`r partner.name`](http://manhica.org).
 
 ```{r, echo=FALSE}
-# Issue to be solved
+# specified format dates:
+hhs_data$interview_date <- as.POSIXct(hhs_data$interview_date, format = "%Y-%m-%d %H:%M:%S")
+hhs_data$child_birth <- as.POSIXct(hhs_data$child_birth, format = "%Y-%m-%d")
 # Created yes/no variables to use in the and childbirth date checks
 hhs_data$diff_in_days = difftime(hhs_data$interview_date, hhs_data$child_birth, units = "days")
 hhs_data$diff_in_months = floor((hhs_data$diff_in_days / 365) * 12)
