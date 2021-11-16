@@ -717,7 +717,7 @@ printDuplicatedHouseholds = function(hhs_data, study_area_column, study_area_lab
                                           language$rerecorded.dups.h9, language$rerecorded.dups.h10,
                                           language$rerecorded.dups.h11, language$rerecorded.dups.h12,
                                           language$rerecorded.dups.h13, language$rerecorded.dups.h14,
-                                          language$rerecorded.dups.h15)
+                                          language$rerecorded.dups.h15, language$rerecorded.dups.h16)
       
       kable(rerecorded_hh_summary, "html", row.names = F, escape = F) %>%
         kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 

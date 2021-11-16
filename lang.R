@@ -118,11 +118,12 @@ kLang <- list(
     rerecorded.dups.h8   = "Sex", 
     rerecorded.dups.h9   = "Available",
     rerecorded.dups.h10  = "Cons.",
-    rerecorded.dups.h11  = "End Preg.", 
-    rerecorded.dups.h12  = "Age",
-    rerecorded.dups.h13  = "Int. ID",
-    rerecorded.dups.h14  = "Int. Date",
-    rerecorded.dups.h15  = "D.",
+    rerecorded.dups.h11  = "Child birth", 
+    rerecorded.dups.h12  = "Int. ID",
+    rerecorded.dups.h13  = "Int. Date",
+    rerecorded.dups.h14  = "Int. ID RDT",
+    rerecorded.dups.h15  = "Int. Date RDT",
+    rerecorded.dups.h16  = "D.",
     not.asked            = "Not asked"
   ),
   FR = list(
