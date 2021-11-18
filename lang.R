@@ -33,7 +33,7 @@ kLang <- list(
     profile.row12        = "Caretakers that denied consent",
     profile.row13        = "Caretakers and/or children absent",
     profile.row14        = "Caretakers unable to respond",
-    profile.row15        = "HH visited but HH head/adults refused to consent the interview",
+    profile.row15        = "HH visited but HH head/adults does not accept to proceed with the interview",
     profile.row16        = "HH visited but contact with HH head/adult NOT made",
     profile.row17        = "HH empty or destroyed",
     profile.row18        = "HH heads/other adult not found",
