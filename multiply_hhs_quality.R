@@ -562,7 +562,8 @@ duplicatedRecords = function(hhs_data, study_area_column, study_area_label) {
   duplicated_records$cluster = duplicated_records[, column]
   
   columns = c("record_id", "district", "cluster", "household", "latitude", "longitude", 
-              "hh_initials", "consent", "interviewer_id", "interview_date")
+              "hh_initials", "consent", "interviewer_id", "interview_date",
+              "interviewer_id_rdt", "interview_date_rdt", "rdt_result")
   duplicated_records_summary = duplicated_records[
     order(duplicated_records$district, duplicated_records$cluster, duplicated_records$household), 
     columns]
@@ -573,6 +574,10 @@ duplicatedRecords = function(hhs_data, study_area_column, study_area_label) {
     duplicated_records_summary$consent[duplicated_records_summary$consent == 1]   = language$yes
     
     duplicated_records_summary$district = study_area_label
+    
+    duplicated_records_summary$rdt_result[duplicated_records_summary$rdt_result == 1] = language$rdt.positive
+    duplicated_records_summary$rdt_result[duplicated_records_summary$rdt_result == 0] = language$rdt.negative
+    duplicated_records_summary$rdt_result[duplicated_records_summary$rdt_result == 2] = language$rdt.indet
   }
   
   return(duplicated_records_summary)
@@ -588,7 +593,8 @@ printDuplicatedRecords = function(hhs_data, study_area_column, study_area_label)
       language$dups.tab.header1, language$dups.tab.header2, language$dups.tab.header3, 
       language$dups.tab.header4, language$dups.tab.header5, language$dups.tab.header6,
       language$dups.tab.header7, language$dups.tab.header8, language$dups.tab.header9,
-      language$dups.tab.header10
+      language$dups.tab.header10, language$dups.tab.header11, language$dups.tab.header12,
+      language$dups.tab.header13
     )
     
     kable(duplicated_records_summary, "html", row.names = F, escape = F) %>%
@@ -640,7 +646,7 @@ duplicatedHouseholds = function(hhs_data, study_area_column, study_area_label) {
   
   columns = c("record_id", "district", "cluster", "household", "latitude", "longitude", 
               "hh_initials", "hh_sex", "hh_available", "consent", "child_birth", 
-              "interviewer_id", "interview_date", "interviewer_id_rdt", "interview_date_rdt")
+              "interviewer_id", "interview_date", "interviewer_id_rdt", "interview_date_rdt", "rdt_result")
   rerecorded_hh_summary = rerecorded_hh[
     order(rerecorded_hh$district, rerecorded_hh$cluster, rerecorded_hh$household, 
           rerecorded_hh$interview_date), columns]
@@ -719,6 +725,10 @@ duplicatedHouseholds = function(hhs_data, study_area_column, study_area_label) {
   rerecorded_hh_summary$duplicated[rerecorded_hh_summary$duplicated == F] = language$rerecorded.dup1
   rerecorded_hh_summary$duplicated[rerecorded_hh_summary$duplicated == T] = language$rerecorded.dup2
   
+  rerecorded_hh_summary$rdt_result[rerecorded_hh_summary$rdt_result == 1] = language$rdt.positive
+  rerecorded_hh_summary$rdt_result[rerecorded_hh_summary$rdt_result == 0] = language$rdt.negative
+  rerecorded_hh_summary$rdt_result[rerecorded_hh_summary$rdt_result == 2] = language$rdt.indet
+  
   return(rerecorded_hh_summary)
 }
 
@@ -736,7 +746,8 @@ printDuplicatedHouseholds = function(hhs_data, study_area_column, study_area_lab
                                           language$rerecorded.dups.h9, language$rerecorded.dups.h10,
                                           language$rerecorded.dups.h11, language$rerecorded.dups.h12,
                                           language$rerecorded.dups.h13, language$rerecorded.dups.h14,
-                                          language$rerecorded.dups.h15, language$rerecorded.dups.h16)
+                                          language$rerecorded.dups.h15, language$rerecorded.dups.h16,
+                                          language$rerecorded.dups.h17)
       
       kable(rerecorded_hh_summary, "html", row.names = F, escape = F) %>%
         kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 

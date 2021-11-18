@@ -65,6 +65,9 @@ kLang <- list(
     dups.tab.header8     = "Consent", 
     dups.tab.header9     = "Int. ID",
     dups.tab.header10    = "Int. Date",
+    dups.tab.header11    = "Int. ID RDT",
+    dups.tab.header12    = "Int. Date RDT",
+    dups.tab.header13    = "RDT Result",
     dups.tab.row2        = "Non interviewed HH",
     dups.tab.row3        = "Interviewed HH",
     dups.tab.row4        = "Duplicated records in NON interviewed HH",
@@ -123,8 +126,12 @@ kLang <- list(
     rerecorded.dups.h13  = "Int. Date",
     rerecorded.dups.h14  = "Int. ID RDT",
     rerecorded.dups.h15  = "Int. Date RDT",
-    rerecorded.dups.h16  = "D.",
-    not.asked            = "Not asked"
+    rerecorded.dups.h16  = "RDT Result",
+    rerecorded.dups.h17  = "D.",
+    not.asked            = "Not asked",
+    rdt.positive         = "Positive",
+    rdt.negative         = "Negative",
+    rdt.indet            = "Indet"
   ),
   FR = list(
     yes                  = "Oui",
