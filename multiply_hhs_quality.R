@@ -374,7 +374,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
     )
     
     number_children_interviewed = table(
-      subset(hhs_data, children_2_years > 0 & children_no_icaria > 0)[column])
+      subset(hhs_data, children_2_years > 0 & children_no_icaria > 0 & consent == 1)[column])
     number_children_interrupt_interview = table(
       subset(hhs_data, consent == 1 & 
                (is.na(children_2_years) | is.na(children_no_icaria)))[column])
@@ -439,7 +439,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       number_children_5_years_list, #number of total u5 children
       number_hh_children_2_years, #number of hh with u2 children
       number_eligible_children_list, # number of eligible children (10-23 months and NON ICARIA)
-      eligible_children_selected_totals, #it really goes "eligible_children_selected_totals" but it is not appearing correctly in the table
+      number_children_interviewed, #it really goes "eligible_children_selected_totals" but it is not appearing correctly in the table
       # Could be due to only being one cluster, so it does not compute it correctly. try later when more clusters available. in testing works
       # Following SOP of supervisors, it fits better "number_children_interviewed" than "eligible_children_Selected_totals", but check which is better.
       number_rdt, #number or RDT performed
@@ -486,7 +486,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
               kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
                             font_size = font_size) %>%
               row_spec(0, bold = T, color = "white", background = "#494949") %>%
-              row_spec(c(1, 2, 7, 8, 10, 15), bold = T) %>%
+              row_spec(c(1, 2, 7, 8, 10, 14, 15), bold = T) %>%
               add_indent(c(3, 14, 15), level_of_indent = 1) %>%
               add_indent(c(4, 5, 16, 17), level_of_indent = 2) %>%
               add_indent(c(6), level_of_indent = 3) %>%
@@ -500,7 +500,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
               kable_styling(bootstrap_options = c("striped", "hover", "responsive"), font_size = 
                               font_size) %>%
               row_spec(0, bold = T, color = "white", background = "#494949") %>%
-              row_spec(c(1, 2, 7, 8, 10, 15), bold = T) %>%
+              row_spec(c(1, 2, 7, 8, 10, 14, 15), bold = T) %>%
               add_indent(c(3, 14, 15), level_of_indent = 1) %>%
               add_indent(c(4, 5, 16, 17), level_of_indent = 2) %>%
               add_indent(c(6), level_of_indent = 3) %>%
@@ -521,7 +521,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
               kable_styling(bootstrap_options = c("striped", "hover", "responsive"), 
                             font_size = font_size) %>%
               row_spec(0, bold = T, color = "white", background = "#494949") %>%
-              row_spec(c(1, 2, 7, 8, 10, 15), bold = T) %>%
+              row_spec(c(1, 2, 7, 8, 10, 14, 15), bold = T) %>%
               add_indent(c(3, 14, 15), level_of_indent = 1) %>%
               add_indent(c(4, 5, 16, 17), level_of_indent = 2) %>%
               add_indent(c(6), level_of_indent = 3) %>%
