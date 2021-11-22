@@ -482,12 +482,12 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
     for(i in colnames(trial_profile)) {
       # Visited HH = interviewed + no interviewed + contact with adult not made
       trial_profile_checked[c(1, 2, 14, 15), i] = cell_spec(
-        x        = trial_profile[c(1, 2, 14, 15),i],
+        x        = trial_profile[c(1, 2, 14, 15), i],
         format   ="html",
         color    = 
-          ifelse(trial_profile[2, i] + trial_profile[14, i] + trial_profile[15,i] != trial_profile[1, i], "red", ""),
+          ifelse((trial_profile[2, i] + trial_profile[14, i] + trial_profile[15,i]) != trial_profile[1, i], "red", ""),
         tooltip  = 
-          ifelse(trial_profile[2, i] + trial_profile[14, i] + trial_profile[15,i] != trial_profile[1, i], 
+          ifelse((trial_profile[2, i] + trial_profile[14, i] + trial_profile[15,i]) != trial_profile[1, i], 
                  language$profile.check1, "")
       )
       
@@ -502,14 +502,14 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
                  language$profile.check2, "")
       )
       
-      # HH with U2 children must be lower than total eligible children
-      trial_profile_checked[c(5,6), i] = cell_spec(
-        x        = trial_profile[c(5,6),i],
+      # HH with U5 children must be greater than HH with U2 children
+      trial_profile_checked[c(3,5), i] = cell_spec(
+        x        = trial_profile[c(3,5),i],
         format   ="html",
         color    = 
-          ifelse(trial_profile[5, i] > trial_profile[6, i], "red", ""),
+          ifelse(trial_profile[3, i] < trial_profile[5, i], "red", ""),
         tooltip  = 
-          ifelse(trial_profile[5, i] > trial_profile[6, i], 
+          ifelse(trial_profile[3, i] < trial_profile[5, i], 
                  language$profile.check3, "")
       )
       
@@ -518,9 +518,9 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
         x        = trial_profile[c(6, 7, 10),i],
         format   ="html",
         color    = 
-          ifelse(trial_profile[7, i] + trial_profile[10,i] > trial_profile[6, i], "red", ""),
+          ifelse((trial_profile[7, i] + trial_profile[10,i]) > trial_profile[6, i], "red", ""),
         tooltip  = 
-          ifelse(trial_profile[7, i] + trial_profile[10,i] > trial_profile[6, i], 
+          ifelse((trial_profile[7, i] + trial_profile[10,i]) > trial_profile[6, i], 
                  language$profile.check4, "")
       )
       

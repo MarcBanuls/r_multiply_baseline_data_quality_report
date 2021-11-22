@@ -39,7 +39,7 @@ kLang <- list(
     profile.row18        = "HH heads/other adult not found",
     profile.check1       = "Visited HH must be equal to the sum of interviewed + NOT interviewed + contact with adult NOT made",
     profile.check2       = "HH with U5 children must be lower than the total of U5 children",
-    profile.check3       = "HH with U2 children must be lower thant the number of eligible NON ICARIA children",
+    profile.check3       = "HH with U5 children must be greater than HH with U2 children",
     profile.check4       = "Eligible children must be greater than the number of selected children interviewed + the number of selected children NON interviewed",
     profile.check5       = "Children interviewed must be equal or greater to number of RDT performed",
     profile.check6       = "Number of RDT must be greater or equal to the number of RDT positives",
