@@ -474,9 +474,107 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
     )
     colnames(trial_profile) = paste0("C", colnames(trial_profile))
     #browser()
+    
+    
     # Consistency checks within the trial profile
     trial_profile_checked = trial_profile
-    # removed consistencies for the moment, saved in file just in case
+    
+    for(i in colnames(trial_profile)) {
+      # Visited HH = interviewed + no interviewed + contact with adult not made
+      trial_profile_checked[c(1, 2, 14, 15), i] = cell_spec(
+        x        = trial_profile[c(1, 2, 14, 15),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[2, i] + trial_profile[14, i] + trial_profile[15,i] != trial_profile[1, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[2, i] + trial_profile[14, i] + trial_profile[15,i] != trial_profile[1, i], 
+                 language$profile.check1, "")
+      )
+      
+      # HH U5 children must be lower than total of U5 children
+      trial_profile_checked[c(3,4), i] = cell_spec(
+        x        = trial_profile[c(3,4),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[3, i] > trial_profile[4, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[3, i] > trial_profile[4, i], 
+                 language$profile.check2, "")
+      )
+      
+      # HH with U2 children must be lower than total eligible children
+      trial_profile_checked[c(5,6), i] = cell_spec(
+        x        = trial_profile[c(5,6),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[5, i] > trial_profile[6, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[5, i] > trial_profile[6, i], 
+                 language$profile.check3, "")
+      )
+      
+      # Eligible children must be greater than children interviewed + NON interviewed
+      trial_profile_checked[c(6, 7, 10), i] = cell_spec(
+        x        = trial_profile[c(6, 7, 10),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[7, i] + trial_profile[10,i] > trial_profile[6, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[7, i] + trial_profile[10,i] > trial_profile[6, i], 
+                 language$profile.check4, "")
+      )
+      
+      # Number of selected children interviewed must be equal or greater to number of RDT
+      trial_profile_checked[c(7,8), i] = cell_spec(
+        x        = trial_profile[c(7,8),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[7, i] < trial_profile[8, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[7, i] < trial_profile[8, i], 
+                 language$profile.check5, "")
+      )
+      
+      # Number of RDT must be equal or greater to number of RDT positives
+      trial_profile_checked[c(8,9), i] = cell_spec(
+        x        = trial_profile[c(8,9),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[8, i] < trial_profile[9, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[8, i] < trial_profile[9, i], 
+                 language$profile.check6, "")
+      )
+      
+      # Number of selected children NON interviewed = denied + absent + unabled
+      trial_profile_checked[c(10, 11, 12, 13), i] = cell_spec(
+        x        = trial_profile[c(10, 11, 12, 13),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[11, i] + trial_profile[12, i] + trial_profile[13, i]
+                 != trial_profile[10, i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[11, i] + trial_profile[12, i] + trial_profile[13, i]
+                 != trial_profile[10, i], 
+                 language$profile.check7, "")
+      )
+      
+      #HH visited but contact with adult not made = HH empty + Adulut not found
+      trial_profile_checked[c(15, 16, 17), i] = cell_spec(
+        x        = trial_profile[c(15, 16, 17),i],
+        format   ="html",
+        color    = 
+          ifelse(trial_profile[16, i] + trial_profile[17, i]
+                 != trial_profile[15,i], "red", ""),
+        tooltip  = 
+          ifelse(trial_profile[16, i] + trial_profile[17, i]
+                 != trial_profile[15,i], 
+                 language$profile.check8, "")
+      )
+    }
+    
+      
+      
     #browser()
     if(ncol(trial_profile_checked) > maximum_number_of_columns) {
       number_of_columns = ncol(trial_profile_checked)
