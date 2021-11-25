@@ -10,16 +10,16 @@ language <- kLang[[kReportLang]]
 
 
 # Data retrieval: {api, file}
-data_retrieval_mode = "api"
+data_retrieval_mode = "file"
 # API
 api_url   = redcap_api_url
 api_token = hhs_baseline_sl # MULTIPLY HHS Sierra Leona
 non_retrieved_records = c("cluster", "facility")
 # File
-file_prefix = "DATA/DATA_WITH_NO_DUPS/XXX"
-file_content = "_DATA_WITH_NO_DUPS_"
-file_date   ="2021-06-15"
-file_time   ="10:33"
+file_prefix = ""
+file_content = "MULTIPLYHHSBaselineS_DATA_"
+file_date   ="2021-11-25"
+file_time   ="16:15"
 
 # Study area description
 study_area_id           = 1
@@ -121,6 +121,10 @@ rdt <- rdt[,-c(2:187)]
 
 # Merge the two dataframes to have all data in one row per record_id
 # (Named hhs_data due to reuse of tiptop functions that only worked with hhs data, not rdt)
+
+#for only reports from file where first column has ï..:
+names(hhs)[names(hhs) == 'ï..record_id'] <- 'record_id'
+names(rdt)[names(rdt) == 'ï..record_id'] <- 'record_id'
 hhs_data <- merge(hhs, rdt, by = "record_id", all.x = TRUE)
 
 # Filter by district
