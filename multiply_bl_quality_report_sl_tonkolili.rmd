@@ -19,13 +19,13 @@ non_retrieved_records = c("cluster", "facility")
 file_prefix = ""
 file_content = "MULTIPLYHHSBaselineS_DATA_"
 file_date   ="2021-11-26"
-file_time   ="10:22"
+file_time   ="15:51"
 
 # Study area description
-study_area_id           = 1
+study_area_id           = 3
 country_name            = "Sierra Leone"
-study_area_label        = "Bombali"
-study_area_column       = "bombali"
+study_area_label        = "Tonkolili"
+study_area_column       = "tonkolili"
 sample_size             = 710
 partner.name            = "template"
 # sample_size * 5 (5 households to find one eligible children)
