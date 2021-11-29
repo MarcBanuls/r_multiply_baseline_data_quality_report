@@ -149,7 +149,7 @@ knitr::include_graphics("github_icon.png")
 `r sprintf(language$progress.records, number_of_records)` 
 (`r sprintf(language$progress.last, last_record_date)`).
 
-`r language$progress.partner` [`r partner.name`](http://manhica.org).
+`r language$progress.partner` [`r partner.name`]().
 
 ```{r, echo=FALSE}
 # specified format dates:
