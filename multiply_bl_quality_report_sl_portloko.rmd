@@ -1,6 +1,6 @@
 
 ```{r parameters, include=FALSE}
-source("multiply_hhs_quality_togo.R")
+source("multiply_hhs_quality.R")
 source("lang.R")
 source("tokens.R")
 
@@ -13,23 +13,23 @@ language <- kLang[[kReportLang]]
 data_retrieval_mode = "api"
 # API
 api_url   = redcap_api_url
-api_token = hhs_baseline_togo # MULTIPLY HHS Togo
+api_token = hhs_baseline_sl # MULTIPLY HHS Sierra Leona
 non_retrieved_records = c("cluster", "facility")
 # File
-file_prefix = "DATA/DATA_WITH_NO_DUPS/XXX"
-file_content = "_DATA_WITH_NO_DUPS_"
-file_date   ="2021-06-15"
-file_time   ="10:33"
+file_prefix = ""
+file_content = "MULTIPLYHHSBaselineS_DATA_"
+file_date   ="2021-11-26"
+file_time   ="15:51"
 
 # Study area description
-study_area_id           = 1
-country_name            = "Togo"
-study_area_label        = "Haho"
-study_area_column       = "haho"
-sample_size             = 710
+study_area_id           = 2
+country_name            = "Sierra Leone"
+study_area_label        = "Port Loko"
+study_area_column       = "port_loko"
+sample_size             = 264
 partner.name            = "template"
 # sample_size * 5 (5 households to find one eligible children)
-household_to_be_visited = 3550
+household_to_be_visited = 1320
 
 data_timestamp = dataTimestamp(data_retrieval_mode, file_date, file_time)
 ```
@@ -107,9 +107,8 @@ output:
 library(knitr)
 knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height = 7.5)
 
-#REMOVED non_retrieved_records, as cluster indeed is used here.
 data = readData(data_retrieval_mode, file_prefix, file_content, file_date, file_time, api_url, 
-                    api_token)
+                    api_token, non_retrieved_records)
 
 # NEEDED TO LINK RDT MALARIA EVENT WITH HHS before filtering by district.
 # Data separated in two arms. we separate in two dataframes by its arm name
@@ -122,14 +121,15 @@ rdt <- rdt[,-c(2:187)]
 
 # Merge the two dataframes to have all data in one row per record_id
 # (Named hhs_data due to reuse of tiptop functions that only worked with hhs data, not rdt)
+
+#for only reports from file where first column has ï..:
+names(hhs)[names(hhs) == 'ï..record_id'] <- 'record_id'
+names(rdt)[names(rdt) == 'ï..record_id'] <- 'record_id'
 hhs_data <- merge(hhs, rdt, by = "record_id", all.x = TRUE)
 
-# Filter by district. Only 1 district in Togo, line not usable.
-#hhs_data = hhs_data[hhs_data$district == study_area_id, ]
+# Filter by district
+hhs_data = hhs_data[hhs_data$district == study_area_id, ]
 hhs_data = hhs_data[!is.na(hhs_data$record_id), ]
-
-#change "cluster" name to "cluster_haho" to facilitate change of code
-names(hhs_data)[names(hhs_data) == 'cluster'] <- 'cluster_haho'
 
 # Global variables
 last_record_date = lastRecordDate(hhs_data)
@@ -149,7 +149,7 @@ knitr::include_graphics("github_icon.png")
 `r sprintf(language$progress.records, number_of_records)` 
 (`r sprintf(language$progress.last, last_record_date)`).
 
-`r language$progress.partner` [`r partner.name`](http://manhica.org).
+`r language$progress.partner` [`r partner.name`]().
 
 ```{r, echo=FALSE}
 # specified format dates:
@@ -160,9 +160,8 @@ hhs_data$diff_in_days = difftime(hhs_data$interview_date, hhs_data$child_birth, 
 hhs_data$diff_in_months = floor((hhs_data$diff_in_days / 365) * 12)
 hhs_data$child_birth_q[hhs_data$diff_in_months < 10 | hhs_data$diff_in_months > 24] = 0
 hhs_data$child_birth_q[hhs_data$diff_in_months <= 24 | hhs_data$diff_in_months >= 10] = 1
-#no ICARIA children in Togo:
-#hhs_data$children_no_icaria_q[hhs_data$children_no_icaria > 0] = 1
-#hhs_data$children_no_icaria_q[hhs_data$children_no_icaria == 0] = 0
+hhs_data$children_no_icaria_q[hhs_data$children_no_icaria > 0] = 1
+hhs_data$children_no_icaria_q[hhs_data$children_no_icaria == 0] = 0
   
 consented   = numberOfparticipantsWhoConsented(hhs_data)
 recruitment = recruitmentRate(hhs_data, sample_size)

@@ -155,7 +155,7 @@ pivot <- function(indexes, index_column, value_column, df) {
 #we create new variables:
 numberOfparticipantsWhoConsented = function(hhs_data) {
   #browser()
-  consented = table(hhs_data$child_birth_q, hhs_data$children_no_icaria_q)
+  consented = table(hhs_data$child_birth_q, hhs_data$child_birth_q)
   
   if(length(consented) > 0)
     consented = consented[, "1"]
@@ -310,7 +310,7 @@ progressOfArea = function(hhs_data, study_area_column, study_area_label, interva
   if(length(visits_number) > 0) {
     max_y_axis = max(visits_number) + interval
     consented_number = table(hhs_data[
-      hhs_data$child_birth_q == 1 & hhs_data$children_no_icaria_q == 1, column])
+      hhs_data$child_birth_q == 1, column])
     
     dat = union(visits_number, consented_number)
     par(cex.lab = 1.5, cex.main = 2, cex.axis = 1.05, mar = c(8, 8, 4, 0))
