@@ -116,9 +116,9 @@ data = readData(data_retrieval_mode, file_prefix, file_content, file_date, file_
 hhs <- data[data$redcap_event_name == 'household_baseline_arm_1',]
 rdt <- data[data$redcap_event_name == 'malaria_rdt_arm_1',]
 
-# Remove the variables for each df that are empty (and arm name to avoid interferences)
-hhs <- hhs[,-c(2,188:220)]
-rdt <- rdt[,-c(2:187)]
+# Remove the variables for each df that are empty (and arm name to avoid interferences) CHANGED due to change of variables in TOGO
+hhs <- hhs[,-c(2,163:194)]
+rdt <- rdt[,-c(2:162)]
 
 # Merge the two dataframes to have all data in one row per record_id
 # (Named hhs_data due to reuse of tiptop functions that only worked with hhs data, not rdt)

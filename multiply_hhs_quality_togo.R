@@ -357,14 +357,16 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       df = number_children_2_years_df
     )
     
+    #no icaria children in togo CHANGED TO 2YEARS, LOOK IF GOOD
     number_eligible_children_df = setNames(
-      aggregate(children_no_icaria ~ get(column), FUN = sum, data = hhs_data),
-      c(column, "children_no_icaria")
+      aggregate(children_2_years ~ get(column), FUN = sum, data = hhs_data),
+      c(column, "children_2_years")
     )
+    #no icaria children in togo CHANGED TO 2YEARS, LOOK IF GOOD
     number_eligible_children_list = pivot(
       indexes = names(number_hh_selected_visited),
       index_column = column,
-      value_column = "children_no_icaria",
+      value_column = "children_2_years",
       df = number_eligible_children_df
     )
     
@@ -372,12 +374,12 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
       number_children_2_years_list, 
       number_eligible_children_list
     )
-    
+    #REMOVE all "children_no_icaria"
     number_children_interviewed = table(
-      subset(hhs_data, children_2_years > 0 & children_no_icaria > 0 & consent == 1)[column])
+      subset(hhs_data, children_2_years > 0 & consent == 1)[column])
     number_children_interrupt_interview = table(
       subset(hhs_data, consent == 1 & 
-               (is.na(children_2_years) | is.na(children_no_icaria)))[column])
+               is.na(children_2_years))[column])
     number_children_non_interviewed = table(subset(hhs_data, consent == 0)[column])
     
     eligible_children_selected = union(number_children_interviewed, number_children_interrupt_interview, 
@@ -412,7 +414,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
     number_rdt_positive = table(hhs_data[hhs_data$rdt_result == 1, column])
     
     number_children_selected_non_interviewed = table(
-      subset(hhs_data, children_2_years > 0 & children_no_icaria > 0 & consent == 0)[column])
+      subset(hhs_data, children_2_years > 0 & consent == 0)[column])
     
     number_hh_visited_no_accept = table(hhs_data[hhs_data$hh_acceptance == 0, column])
     number_adult_not_found = table(hhs_data[hhs_data$hh_acceptance == 77, column])
@@ -431,6 +433,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
     
     
     
+    #TRIAL PROFILE MUST BE CHANGED TO HAVE INTO ACCOUNT CHANGES ABOUT NON ICARIA CHILDREN
     
     trial_profile = union(
       number_hh_selected_visited, #hh selected visited
@@ -559,7 +562,7 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
                  language$profile.check7, "")
       )
       
-      #HH visited but contact with adult not made = HH empty + Adulut not found
+      #HH visited but contact with adult not made = HH empty + Adult not found
       trial_profile_checked[c(15, 16, 17), i] = cell_spec(
         x        = trial_profile[c(15, 16, 17),i],
         format   ="html",
@@ -641,7 +644,6 @@ trialProfileOfArea = function(hhs_data, study_area_column, lang = 'EN') {
   }
   
 }
-# TRIAL PROFILE DATA in progress, focus on duplicates
 
 # SP indicators to be done
 
@@ -659,11 +661,12 @@ duplicatedRecords = function(hhs_data, study_area_column, study_area_label) {
   
   duplicated_records$cluster = duplicated_records[, column]
   
-  columns = c("record_id", "district", "cluster", "household", "latitude", "longitude", 
+  #remove district
+  columns = c("record_id", "cluster", "household", "latitude", "longitude", 
               "hh_initials", "consent", "interviewer_id", "interview_date",
               "interviewer_id_rdt", "interview_date_rdt", "rdt_result")
   duplicated_records_summary = duplicated_records[
-    order(duplicated_records$district, duplicated_records$cluster, duplicated_records$household), 
+    order(duplicated_records$cluster, duplicated_records$household), 
     columns]
   
   if(nrow(duplicated_records_summary) > 0) {
@@ -686,9 +689,10 @@ printDuplicatedRecords = function(hhs_data, study_area_column, study_area_label)
   #browser()
   duplicated_records_summary = duplicatedRecords(hhs_data, study_area_column, study_area_label)
   
+  #remove district for togo
   if(nrow(duplicated_records_summary) > 0) {
     colnames(duplicated_records_summary) = c(
-      language$dups.tab.header1, language$dups.tab.header2, language$dups.tab.header3, 
+      language$dups.tab.header1, language$dups.tab.header3, 
       language$dups.tab.header4, language$dups.tab.header5, language$dups.tab.header6,
       language$dups.tab.header7, language$dups.tab.header8, language$dups.tab.header9,
       language$dups.tab.header10, language$dups.tab.header11, language$dups.tab.header12,
@@ -741,28 +745,27 @@ duplicatedHouseholds = function(hhs_data, study_area_column, study_area_label) {
   
   rerecorded_hh$cluster[!is.na(rerecorded_hh[column])] = 
     rerecorded_hh[!is.na(rerecorded_hh[column]), column]
-  
-  columns = c("record_id", "district", "cluster", "household", "latitude", "longitude", 
+  #remove district
+  columns = c("record_id", "cluster", "household", "latitude", "longitude", 
               "hh_initials", "hh_sex", "hh_available", "consent", "child_birth", 
               "interviewer_id", "interview_date", "interviewer_id_rdt", "interview_date_rdt", "rdt_result")
   rerecorded_hh_summary = rerecorded_hh[
-    order(rerecorded_hh$district, rerecorded_hh$cluster, rerecorded_hh$household, 
+    order(rerecorded_hh$cluster, rerecorded_hh$household, 
           rerecorded_hh$interview_date), columns]
   
   # Remove deleted records
   rerecorded_hh_summary = rerecorded_hh_summary[!is.na(rerecorded_hh_summary$district), ]
   
+  #remove district
   #browser()
   # Disambiguate records
   if(nrow(rerecorded_hh_summary) > 0) {
     rerecorded_hh_summary$duplicated = NA
-    current_district = rerecorded_hh_summary$district[1]
     current_cluster = rerecorded_hh_summary$cluster[1]
     current_household = rerecorded_hh_summary$household[1]
     records_in_conflict = c(1)
     for(i in 2:nrow(rerecorded_hh_summary)) {
-      if(rerecorded_hh_summary$district[i] == current_district & 
-         rerecorded_hh_summary$cluster[i] == current_cluster &
+      if(rerecorded_hh_summary$cluster[i] == current_cluster &
          ((is.na(rerecorded_hh_summary$household[i]) & is.na(current_household)) | 
           (!is.na(rerecorded_hh_summary$household[i]) & 
            rerecorded_hh_summary$household[i] == current_household))) {
@@ -783,7 +786,6 @@ duplicatedHouseholds = function(hhs_data, study_area_column, study_area_label) {
           }
         }
         
-        current_district = rerecorded_hh_summary$district[i]
         current_cluster = rerecorded_hh_summary$cluster[i]
         current_household = rerecorded_hh_summary$household[i]
         records_in_conflict = c(i)
@@ -811,7 +813,6 @@ duplicatedHouseholds = function(hhs_data, study_area_column, study_area_label) {
   rerecorded_hh_summary$consent[rerecorded_hh_summary$consent == 0]   = language$no
   rerecorded_hh_summary$consent[rerecorded_hh_summary$consent == 1]   = language$yes
   
-  rerecorded_hh_summary$district = study_area_label
   
   rerecorded_hh_summary$hh_sex[rerecorded_hh_summary$hh_sex == 0] = language$rerecorded.sex1
   rerecorded_hh_summary$hh_sex[rerecorded_hh_summary$hh_sex == 1] = language$rerecorded.sex2
