@@ -661,10 +661,10 @@ duplicatedRecords = function(hhs_data, study_area_column, study_area_label) {
   
   duplicated_records$cluster = duplicated_records[, column]
   
-  #remove district
+  
   columns = c("record_id", "cluster", "household", "latitude", "longitude", 
               "hh_initials", "consent", "interviewer_id", "interview_date",
-              "interviewer_id_rdt", "interview_date_rdt", "rdt_result")
+              "interviewer_id_rdt", "interview_date_rdt", "rdt_result", "District")
   duplicated_records_summary = duplicated_records[
     order(duplicated_records$cluster, duplicated_records$household), 
     columns]
