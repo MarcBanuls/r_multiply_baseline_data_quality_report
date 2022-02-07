@@ -661,10 +661,10 @@ duplicatedRecords = function(hhs_data, study_area_column, study_area_label) {
   
   duplicated_records$cluster = duplicated_records[, column]
   
-  
+  #remove district
   columns = c("record_id", "cluster", "household", "latitude", "longitude", 
               "hh_initials", "consent", "interviewer_id", "interview_date",
-              "interviewer_id_rdt", "interview_date_rdt", "rdt_result", "District")
+              "interviewer_id_rdt", "interview_date_rdt", "rdt_result")
   duplicated_records_summary = duplicated_records[
     order(duplicated_records$cluster, duplicated_records$household), 
     columns]
@@ -674,7 +674,7 @@ duplicatedRecords = function(hhs_data, study_area_column, study_area_label) {
     duplicated_records_summary$consent[duplicated_records_summary$consent == 0]   = language$no
     duplicated_records_summary$consent[duplicated_records_summary$consent == 1]   = language$yes
     
-    duplicated_records_summary$district = study_area_label
+    #removed creation of district variable
     
     duplicated_records_summary$rdt_result[duplicated_records_summary$rdt_result == 1] = language$rdt.positive
     duplicated_records_summary$rdt_result[duplicated_records_summary$rdt_result == 0] = language$rdt.negative
@@ -754,7 +754,8 @@ duplicatedHouseholds = function(hhs_data, study_area_column, study_area_label) {
           rerecorded_hh$interview_date), columns]
   
   # Remove deleted records
-  rerecorded_hh_summary = rerecorded_hh_summary[!is.na(rerecorded_hh_summary$district), ]
+  #for togo, chanbe 'district' for 'cluster' because here the district variable does not exist
+  rerecorded_hh_summary = rerecorded_hh_summary[!is.na(rerecorded_hh_summary$cluster), ]
   
   #remove district
   #browser()
@@ -838,7 +839,7 @@ printDuplicatedHouseholds = function(hhs_data, study_area_column, study_area_lab
   
   if(!is.null(rerecorded_hh_summary)) {
     if(nrow(rerecorded_hh_summary) > 0) {
-      colnames(rerecorded_hh_summary) = c(language$rerecorded.dups.h1, language$rerecorded.dups.h2,
+      colnames(rerecorded_hh_summary) = c(language$rerecorded.dups.h1, 
                                           language$rerecorded.dups.h3, language$rerecorded.dups.h4,
                                           language$rerecorded.dups.h5, language$rerecorded.dups.h6,
                                           language$rerecorded.dups.h7, language$rerecorded.dups.h8,
