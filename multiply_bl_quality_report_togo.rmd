@@ -221,6 +221,11 @@ duplicatesSummary(hhs_data, study_area_column)
 ### `r language$dups.subtitle2`
 `r language$dups.desc1`
 
+```{r, include=FALSE}
+#remove record 2156 to test
+hhs_data <- hhs_data[!hhs_data$record_id == 2156,]
+```
+
 ```{r duplicated_households, echo=FALSE}
 printDuplicatedHouseholds(hhs_data, study_area_column, study_area_label)
 ```
