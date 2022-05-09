@@ -220,7 +220,28 @@ duplicatesSummary(hhs_data, study_area_column)
 
 ### `r language$dups.subtitle2`
 `r language$dups.desc1`
+```{r, include=FALSE}
+#remove record 2156 to test
 
+#hhs_data <- hhs_data[!hhs_data$record_id == 2156,]
+
+#remove duplicated records to test again
+#hhs_data <- hhs_data[!hhs_data$record_id == 1402,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1444,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1495,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1500,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1501,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1546,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1588,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1638,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1639,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1644,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1645,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1690,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1732,]
+hhs_data <- hhs_data[!hhs_data$record_id == 2156,]
+
+```
 
 ```{r duplicated_households, echo=FALSE}
 printDuplicatedHouseholds(hhs_data, study_area_column, study_area_label)
