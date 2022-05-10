@@ -10,26 +10,26 @@ language <- kLang[[kReportLang]]
 
 
 # Data retrieval: {api, file}
-data_retrieval_mode = "api"
+data_retrieval_mode = "file"
 # API
 api_url   = redcap_api_url
 api_token = hhs_baseline_togo # MULTIPLY HHS Togo
 non_retrieved_records = c("cluster", "facility")
 # File
-file_prefix = "DATA/DATA_WITH_NO_DUPS/XXX"
+file_prefix = "MULTIPLYHHSBaselineTogo"
 file_content = "_DATA_WITH_NO_DUPS_"
-file_date   ="2021-06-15"
-file_time   ="10:33"
-
+file_date   ="2022-05-10"
+file_time   ="16:11"
+#MULTIPLYHHSBaselineTogo_DATA_WITH_NO_DUPS_2022-05-10_1034
 # Study area description
 study_area_id           = 1
 country_name            = "Togo"
 study_area_label        = "Haho"
 study_area_column       = "haho"
-sample_size             = 710
+sample_size             = 684
 partner.name            = "template"
 # sample_size * 5 (5 households to find one eligible children)
-household_to_be_visited = 3550
+household_to_be_visited = 3420
 
 data_timestamp = dataTimestamp(data_retrieval_mode, file_date, file_time)
 ```
@@ -102,31 +102,16 @@ output:
   color: #31708f;
 }
 </style>
-
-```{r setup, include=FALSE}
+```{r,include=FALSE}
+#ONLY FOR FILE DUPS READING
+#for loading a file of no dups, as the df is already merged,data=hhs_data
 library(knitr)
 knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height = 7.5)
 
 #REMOVED non_retrieved_records, as cluster indeed is used here.
 data = readData(data_retrieval_mode, file_prefix, file_content, file_date, file_time, api_url, 
                     api_token)
-
-# NEEDED TO LINK RDT MALARIA EVENT WITH HHS before filtering by district.
-# Data separated in two arms. we separate in two dataframes by its arm name
-hhs <- data[data$redcap_event_name == 'household_baseline_arm_1',]
-rdt <- data[data$redcap_event_name == 'malaria_rdt_arm_1',]
-
-# Remove the variables for each df that are empty (and arm name to avoid interferences) CHANGED due to change of variables in TOGO
-hhs <- hhs[,-c(2,163:194)]
-rdt <- rdt[,-c(2:162)]
-
-# Merge the two dataframes to have all data in one row per record_id
-# (Named hhs_data due to reuse of tiptop functions that only worked with hhs data, not rdt)
-hhs_data <- merge(hhs, rdt, by = "record_id", all.x = TRUE)
-
-# Filter by district. Only 1 district in Togo, line not usable.
-#hhs_data = hhs_data[hhs_data$district == study_area_id, ]
-hhs_data = hhs_data[!is.na(hhs_data$record_id), ]
+hhs_data = data
 
 #change "cluster" name to "cluster_haho" to facilitate change of code
 names(hhs_data)[names(hhs_data) == 'cluster'] <- 'cluster_haho'
@@ -134,6 +119,40 @@ names(hhs_data)[names(hhs_data) == 'cluster'] <- 'cluster_haho'
 # Global variables
 last_record_date = lastRecordDate(hhs_data)
 number_of_records = numberOfRecords(hhs_data)
+```
+
+
+```{r setup, include=FALSE}
+# library(knitr)
+# knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height = 7.5)
+# 
+# #REMOVED non_retrieved_records, as cluster indeed is used here.
+# data = readData(data_retrieval_mode, file_prefix, file_content, file_date, file_time, api_url, 
+#                     api_token)
+# 
+# # NEEDED TO LINK RDT MALARIA EVENT WITH HHS before filtering by district.
+# # Data separated in two arms. we separate in two dataframes by its arm name
+# hhs <- data[data$redcap_event_name == 'household_baseline_arm_1',]
+# rdt <- data[data$redcap_event_name == 'malaria_rdt_arm_1',]
+# 
+# # Remove the variables for each df that are empty (and arm name to avoid interferences) CHANGED due to change of variables in TOGO
+# hhs <- hhs[,-c(2,163:194)]
+# rdt <- rdt[,-c(2:162)]
+# 
+# # Merge the two dataframes to have all data in one row per record_id
+# # (Named hhs_data due to reuse of tiptop functions that only worked with hhs data, not rdt)
+# hhs_data <- merge(hhs, rdt, by = "record_id", all.x = TRUE)
+# 
+# # Filter by district. Only 1 district in Togo, line not usable.
+# #hhs_data = hhs_data[hhs_data$district == study_area_id, ]
+# hhs_data = hhs_data[!is.na(hhs_data$record_id), ]
+# 
+# #change "cluster" name to "cluster_haho" to facilitate change of code
+# names(hhs_data)[names(hhs_data) == 'cluster'] <- 'cluster_haho'
+# 
+# # Global variables
+# last_record_date = lastRecordDate(hhs_data)
+# number_of_records = numberOfRecords(hhs_data)
 ```
 
 
@@ -239,7 +258,7 @@ duplicatesSummary(hhs_data, study_area_column)
 #hhs_data <- hhs_data[!hhs_data$record_id == 1645,]
 #hhs_data <- hhs_data[!hhs_data$record_id == 1690,]
 #hhs_data <- hhs_data[!hhs_data$record_id == 1732,]
-hhs_data <- hhs_data[!hhs_data$record_id == 2156,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 2156,]
 
 ```
 
