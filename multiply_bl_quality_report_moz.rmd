@@ -1,0 +1,296 @@
+
+```{r parameters, include=FALSE}
+source("multiply_hhs_quality_moz.R")
+source("lang.R")
+source("tokens.R")
+
+# Report language
+kReportLang <- "EN"
+language <- kLang[[kReportLang]]
+
+
+# Data retrieval: {api, file}
+data_retrieval_mode = "api"
+# API
+api_url   = redcap_api_url
+api_token = hhs_baseline_moz # MULTIPLY HHS Moz
+non_retrieved_records = c("cluster", "facility")
+# File
+file_prefix = "MULTIPLYHHSBaselineMoz"
+file_content = "_DATA_WITH_NO_DUPS_"
+file_date   ="2022-10-17"
+file_time   ="16:11"
+#MULTIPLYHHSBaselineTogo_DATA_WITH_NO_DUPS_2022-05-10_1034
+# Study area description
+study_area_id           = 1
+country_name            = "Mozambique"
+study_area_label        = "Massinga"
+study_area_column       = "massinga"
+sample_size             = 684
+partner.name            = "template"
+# sample_size * 5 (5 households to find one eligible children)
+household_to_be_visited = 3420
+
+data_timestamp = dataTimestamp(data_retrieval_mode, file_date, file_time)
+```
+
+```{r title, include=FALSE}
+#Languages
+report.title <- paste(language$head.survey, '-', language$head.report, ':', country_name, '-', study_area_label)
+```
+
+---
+title: "`r report.title`"
+author: "Marc Bañuls Tornero"
+date: `r data_timestamp`
+output:
+  html_document: default
+  pdf_document: default
+---
+
+<style>
+.main-container{
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.col-container{
+  overflow: auto;
+  position: relative;
+}
+.col-left{
+  float: left;
+  width: 50%;
+}
+.col-left-40{
+  float: left;
+  width: 40%;
+}
+.col-right{
+  float: right;
+  width: 50%;
+}
+.col-bottom{
+  position: absolute;
+  bottom: 0px;
+}
+.big-number{
+  font-size: 95px;
+}
+.medium-number{
+  font-size: 40px;
+}
+.text-center{
+  text-align: center;
+}
+.text-right{
+  text-align: right;
+}
+.text-left{
+  text-align: left;
+}
+.vertical-small-padding{
+  padding: 0 15px 0 15px;
+}
+.minnor-header{
+  font-size: 18px;
+}
+.text-color-medium-value{
+  color: #585859;
+}
+.text-color-big-value{
+  color: #31708f;
+}
+</style>
+```{r,include=FALSE}
+#ONLY FOR FILE DUPS READING
+#for loading a file of no dups, as the df is already merged,data=hhs_data
+# library(knitr)
+# knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height = 7.5)
+# 
+# #REMOVED non_retrieved_records, as cluster indeed is used here.
+# data = readData(data_retrieval_mode, file_prefix, file_content, file_date, file_time, api_url, 
+#                     api_token)
+# hhs_data = data
+# 
+# #change "cluster" name to "cluster_massinga" to facilitate change of code
+# names(hhs_data)[names(hhs_data) == 'cluster'] <- 'cluster_massinga'
+# 
+# # Global variables
+# last_record_date = lastRecordDate(hhs_data)
+# number_of_records = numberOfRecords(hhs_data)
+```
+
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height = 7.5)
+
+#REMOVED non_retrieved_records, as cluster indeed is used here.
+data = readData(data_retrieval_mode, file_prefix, file_content, file_date, file_time, api_url,
+                    api_token)
+
+# NEEDED TO LINK RDT MALARIA EVENT WITH HHS before filtering by district.
+# Data separated in two arms. we separate in two dataframes by its arm name
+hhs <- data[data$redcap_event_name == 'household_baseline_arm_1',]
+rdt <- data[data$redcap_event_name == 'malaria_rdt_arm_1',]
+
+# Remove the variables for each df that are empty (and arm name to avoid interferences) CHANGED due to change of variables in TOGO
+hhs <- hhs[,-c(2,163:194)]
+rdt <- rdt[,-c(2:162)]
+
+# Merge the two dataframes to have all data in one row per record_id
+# (Named hhs_data due to reuse of tiptop functions that only worked with hhs data, not rdt)
+hhs_data <- merge(hhs, rdt, by = "record_id", all.x = TRUE)
+
+# Filter by district. Only 1 district in Togo, line not usable.
+#hhs_data = hhs_data[hhs_data$district == study_area_id, ]
+hhs_data = hhs_data[!is.na(hhs_data$record_id), ]
+
+#change "cluster" name to "cluster_haho" to facilitate change of code
+names(hhs_data)[names(hhs_data) == 'cluster'] <- 'cluster_massinga'
+
+# Global variables
+last_record_date = lastRecordDate(hhs_data)
+number_of_records = numberOfRecords(hhs_data)
+```
+
+
+
+```{r out.width="30px", echo=FALSE}
+knitr::include_graphics("github_icon.png")
+```
+
+[`r language$head.github`](https://github.com/MarcBanuls/r_multiply_baseline_data_quality_report)
+
+## `r language$progress.title`
+
+`r sprintf(language$progress.records, number_of_records)` 
+(`r sprintf(language$progress.last, last_record_date)`).
+
+`r language$progress.partner` [`r partner.name`](http://manhica.org).
+
+```{r, echo=FALSE}
+# specified format dates:
+hhs_data$interview_date <- as.POSIXct(hhs_data$interview_date, format = "%Y-%m-%d %H:%M:%S")
+hhs_data$child_birth <- as.POSIXct(hhs_data$child_birth, format = "%Y-%m-%d")
+# Created yes/no variables to use in the and childbirth date checks
+hhs_data$diff_in_days = difftime(hhs_data$interview_date, hhs_data$child_birth, units = "days")
+hhs_data$diff_in_months = floor((hhs_data$diff_in_days / 365) * 12)
+hhs_data$child_birth_q[hhs_data$diff_in_months < 10 | hhs_data$diff_in_months > 24] = 0
+hhs_data$child_birth_q[hhs_data$diff_in_months <= 24 | hhs_data$diff_in_months >= 10] = 1
+#no ICARIA children in Togo:
+#hhs_data$children_no_icaria_q[hhs_data$children_no_icaria > 0] = 1
+#hhs_data$children_no_icaria_q[hhs_data$children_no_icaria == 0] = 0
+  
+consented   = numberOfparticipantsWhoConsented(hhs_data)
+recruitment = recruitmentRate(hhs_data, sample_size)
+```
+
+```{r remove_lat_lon, echo=FALSE}
+# TO BE REMOVED
+#CHECK LAT LON AS NA
+hhs_data$latitude <- NA
+hhs_data$longitude <- NA
+```
+
+### `r language$progress.subtitle1`
+
+
+<div class="col-left text-center">
+  `r language$progress.women` @ `r study_area_label`
+
+
+  <span class="big-number">`r recruitment`%</span>
+
+  `r consented` / `r sample_size`
+</div>
+
+
+
+<div class="col-right text-center">
+</div>
+
+<p style="page-break-before: always">
+
+```{r, joinclusterstomassinga, echo=FALSE }
+hhs_data$cluster_massinga[!is.na(hhs_data$locality)] = 
+  rowSums(hhs_data[!is.na(hhs_data$locality), grepl("cluster_", names(hhs_data))], na.rm = T)
+```
+
+
+```{r progress_area_1, echo=FALSE}
+progressOfArea(hhs_data, study_area_column, study_area_label, interval = 10, required_visits_mean = 60, lang = language)
+```
+
+<p style="page-break-before: always">
+
+## `r paste(language$profile.title)`
+
+### `r sprintf(language$profile.subtitle1, study_area_label)`
+
+```{r trial_profile_area_1, echo=FALSE, results="asis"}
+trialProfileOfArea(hhs_data, study_area_column)
+```
+
+<p style="page-break-before: always">
+
+## `r language$dups.title`
+
+### `r sprintf(language$dups.subtitle1, study_area_label)`
+
+```{r duplicates_summary_area_1, echo=FALSE, results="asis"}
+duplicatesSummary(hhs_data, study_area_column)
+```
+
+### `r language$dups.subtitle2`
+`r language$dups.desc1`
+```{r, include=FALSE}
+#remove record 2156 to test
+
+#hhs_data <- hhs_data[!hhs_data$record_id == 2156,]
+
+#remove duplicated records to test again
+#hhs_data <- hhs_data[!hhs_data$record_id == 1402,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1444,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1495,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1500,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1501,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1546,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1588,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1638,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1639,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1644,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1645,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1690,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 1732,]
+#hhs_data <- hhs_data[!hhs_data$record_id == 2156,]
+
+```
+
+```{r duplicated_households, echo=FALSE}
+printDuplicatedHouseholds(hhs_data, study_area_column, study_area_label)
+```
+
+### `r language$dups.subtitle3`
+`r language$dups.desc2`
+
+```{r duplicated_records, echo=FALSE}
+printDuplicatedRecords(hhs_data, study_area_column, study_area_label)
+```
+
+<p style="page-break-before: always">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
