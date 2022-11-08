@@ -275,7 +275,7 @@ duplicatesSummary(hhs_data, study_area_column)
 ### `r language$dups.subtitle3`
 `r language$dups.desc2`
 
-```{r duplicated_records, echo=FALSE}
+```{r duplicated_records, echo=FALSE, warning=FALSE}
 printDuplicatedRecords(hhs_data, study_area_column, study_area_label)
 ```
 
