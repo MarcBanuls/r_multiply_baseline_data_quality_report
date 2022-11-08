@@ -688,6 +688,9 @@ duplicatedRecords = function(hhs_data, study_area_column, study_area_label) {
 printDuplicatedRecords = function(hhs_data, study_area_column, study_area_label) {
   #browser()
   duplicated_records_summary = duplicatedRecords(hhs_data, study_area_column, study_area_label)
+  #remove NA rows MARC
+  duplicated_records_summary = duplicated_records_summary %>%
+    filter(!is.na(cluster) & !is.na(household) & !is.na(consent))
   
   #remove district for togo
   if(nrow(duplicated_records_summary) > 0) {
